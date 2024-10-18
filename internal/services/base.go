@@ -1,14 +1,22 @@
 package services
 
-// "hotel-booking-system/common"
-// "hotel-booking-system/server"
-// "gorm.io/gorm"
+import (
+	"ielts-app-api/internal/repositories"
+)
 
-// Declare All the API Service at here!!!
 type Service struct {
+	UserRepo *repositories.UserRepository
 }
 
-func NewService() *Service {
-
-	return &Service{}
+func NewService(repos ...interface{}) *Service {
+	service := &Service{}
+	for _, repo := range repos {
+		switch repo.(type) {
+		case *repositories.UserRepository:
+			service.UserRepo = repo.(*repositories.UserRepository)
+		default:
+			panic("Unknown repository type provided")
+		}
+	}
+	return service
 }
