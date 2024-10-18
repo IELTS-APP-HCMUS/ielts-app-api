@@ -13,6 +13,7 @@ import (
 )
 
 func main() {
+	// Load configuration from environment variables
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		panic(fmt.Sprintf("Failed to load config: %v", err))
@@ -20,7 +21,7 @@ func main() {
 
 	// Create the PostgreSQL DSN (Data Source Name) using the loaded config
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%d sslmode=require",
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=require",
 		cfg.Postgres.Host,
 		cfg.Postgres.User,
 		cfg.Postgres.Password,
