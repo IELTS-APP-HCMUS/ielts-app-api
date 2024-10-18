@@ -16,6 +16,7 @@ func NewHandler(service *services.Service) *Handler {
 	}
 }
 
+// Define API route here
 func (h *Handler) RegisterRoutes(c *gin.Engine) {
 	userRoutes := c.Group("/api/users")
 	{
