@@ -45,5 +45,5 @@ func main() {
 	handler.RegisterRoutes(router)
 
 	// Start the server
-	router.Run(":8080")
+	router.Run("0.0.0.0:" + fmt.Sprintf("%d", 8080))
 }
