@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"ielts-app-api/common"
 	"ielts-app-api/internal/models"
 	"time"
 
@@ -31,15 +32,18 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 		return err
 	}
 
-	newUser := models.User{
-		Email:    req.Email,
-		Password: string(hashedPassword),
-		Role:     "da0e07d4-ce51-4784-a5a9-a018434adf8e",
-	}
-
-	_, err = s.UserRepo.Create(ctx, &newUser)
-	if err != nil {
-		return err
+	if req.Role == common.ROLE_END_USER {
+		newUser := models.User{
+			Email:     req.Email,
+			Password:  string(hashedPassword),
+			Role:      common.ROLE_END_USER_UUID,
+			FirstName: &req.FirstName,
+			LastName:  &req.LastName,
+		}
+		_, err = s.UserRepo.Create(ctx, &newUser)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

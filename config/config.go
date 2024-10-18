@@ -1,36 +1,38 @@
 package config
 
 import (
+	"log"
 	"os"
 
-	"gopkg.in/yaml.v3"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Postgres PostgresConfig `yaml:"postgres"`
+	Postgres PostgresConfig
 }
 
 type PostgresConfig struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	Name     string `yaml:"name"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
+	Host     string
+	Port     string
+	Name     string
+	User     string
+	Password string
 }
 
+// LoadConfig loads the configuration from environment variables
 func LoadConfig() (*Config, error) {
-	file, err := os.Open("C:/Users/Admin/Desktop/project/ielts-app-api/config/config.yaml")
+	err := godotenv.Load()
 	if err != nil {
-		return nil, err
+		log.Println("Warning: could not load .env file, relying on environment variables")
 	}
-	defer file.Close()
-	var config Config
-
-	decoder := yaml.NewDecoder(file)
-	err = decoder.Decode(&config)
-	if err != nil {
-		return nil, err
+	config := &Config{
+		Postgres: PostgresConfig{
+			Host:     os.Getenv("DB_HOST"),
+			Port:     os.Getenv("DB_PORT"),
+			Name:     os.Getenv("DB_NAME"),
+			User:     os.Getenv("DB_USER"),
+			Password: os.Getenv("DB_PASSWORD"),
+		},
 	}
-
-	return &config, nil
+	return config, nil
 }
