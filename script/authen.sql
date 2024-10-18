@@ -60,6 +60,21 @@ CREATE TABLE public.users (
 
 
 
+CREATE TABLE public.student_target (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),   -- UUID primary key
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE, -- Foreign key to the users table
+    target_study_duration INT,                       -- Study duration (in minutes or hours)
+    target_reading FLOAT,                            -- Reading score target
+    target_listening FLOAT,                          -- Listening score target
+    target_speaking FLOAT,                           -- Speaking score target
+    target_writing FLOAT,                            -- Writing score target
+    next_exam_date TIMESTAMPTZ                       -- Timestamp for the next exam date
+);
 
-
-
+CREATE TABLE public.access_control_list (
+    id SERIAL PRIMARY KEY,            -- Primary key with auto-increment
+    action_id TEXT NOT NULL,           -- Identifier for the action (e.g., CREATE_USER)
+    role_id UUID REFERENCES roles(id), -- Foreign key to the roles table
+    status SMALLINT DEFAULT 1,         -- Status field (1 for active, 0 for inactive)
+    user_id UUID REFERENCES users(id)  -- Foreign key to the users table (optional)
+);
