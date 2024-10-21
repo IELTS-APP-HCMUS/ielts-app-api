@@ -10,6 +10,7 @@ import (
 func (h *Handler) SignUp(c *gin.Context) {
 	var req models.SignupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		// err
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}

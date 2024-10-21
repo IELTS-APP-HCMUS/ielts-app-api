@@ -12,3 +12,6 @@ type LoginRequest struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
+
+//30h
+// 3-5h --> advanced topic
