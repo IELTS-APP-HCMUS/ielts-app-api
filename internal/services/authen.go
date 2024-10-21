@@ -36,7 +36,7 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 		newUser := models.User{
 			Email:     req.Email,
 			Password:  string(hashedPassword),
-			Role:      common.ROLE_END_USER_UUID,
+			RoleID:    common.ROLE_END_USER_UUID,
 			FirstName: &req.FirstName,
 			LastName:  &req.LastName,
 		}
@@ -64,7 +64,7 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (strin
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":    user.ID,
 		"email": user.Email,
-		"role":  user.Role,
+		"role":  user.RoleID,
 		"exp":   time.Now().Add(24 * time.Hour).Unix(),
 	})
 
