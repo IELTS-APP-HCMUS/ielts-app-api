@@ -22,6 +22,5 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 	{
 		userRoutes.POST("/signup", h.SignUp)
 		userRoutes.POST("/login", h.LogIn)
-		userRoutes.POST("/logout", h.LogOut)
 	}
 }

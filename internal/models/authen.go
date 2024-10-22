@@ -9,9 +9,8 @@ type SignupRequest struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Email       *string `json:"email,omitempty"`
+	Password    *string `json:"password,omitempty"`
+	AccessToken *string `json:"access_token,omitempty"`
+	IdToken     *string `json:"id_token,omitempty"`
 }
-
-//30h
-// 3-5h --> advanced topic

@@ -19,7 +19,6 @@ type PostgresConfig struct {
 	Password string
 }
 
-// LoadConfig loads the configuration from environment variables
 func LoadConfig() (*Config, error) {
 	err := godotenv.Load()
 	if err != nil {
