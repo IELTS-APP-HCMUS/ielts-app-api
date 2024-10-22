@@ -49,7 +49,6 @@ func UserAuthentication(c *gin.Context) {
 		//ex := claims.Exp
 		if claims.Exp > time.Now().Unix() {
 			c.Set(common.USER_JWT_KEY, claims)
-			fmt.Println("claims", claims.Id)
 			// convert string to uuid
 			claims.Id = strings.ToLower(claims.Id)
 			c.Set(common.UserId, claims.Id)

@@ -8,18 +8,12 @@ import (
 
 func (h *Handler) GetUserProfile(c *gin.Context) {
 	// userId := c.Param("user_id")
-	userId, exists := c.Get(common.UserId)
-	if !exists {
+	ok, userJWTProfile := common.ProfileFromJwt(c)
+	if !ok {
 		c.JSON(common.INTERNAL_SERVER_ERR, gin.H{"error": "User not found"})
 		return
 	}
-	// userId = "417b8399-d6a6-49f9-bec1-440ffe5a8f46"
-	userIdStr, ok := userId.(string)
-	if !ok {
-		c.JSON(common.INTERNAL_SERVER_ERR, gin.H{"error": "Invalid user ID type"})
-		return
-	}
-	data, err := h.service.GetUserProfileById(c, userIdStr)
+	data, err := h.service.GetUserProfileById(c, userJWTProfile.Id)
 	if err != nil {
 		c.JSON(common.INTERNAL_SERVER_ERR, gin.H{"error": err.Error()})
 		return
