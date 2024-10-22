@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) GetUser(c *gin.Context) {
+func (h *Handler) GetUserProfile(c *gin.Context) {
 	// userId := c.Param("user_id")
 	userId, exists := c.Get(common.UserId)
 	if !exists {
@@ -19,7 +19,7 @@ func (h *Handler) GetUser(c *gin.Context) {
 		c.JSON(common.INTERNAL_SERVER_ERR, gin.H{"error": "Invalid user ID type"})
 		return
 	}
-	data, err := h.service.GetUserById(c, userIdStr)
+	data, err := h.service.GetUserProfileById(c, userIdStr)
 	if err != nil {
 		c.JSON(common.INTERNAL_SERVER_ERR, gin.H{"error": err.Error()})
 		return

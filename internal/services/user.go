@@ -5,7 +5,7 @@ import (
 	"ielts-app-api/internal/models"
 )
 
-func (s *Service) GetUserById(ctx context.Context, id string) (*models.User, error) {
+func (s *Service) GetUserProfileById(ctx context.Context, id string) (*models.User, error) {
 	user, err := s.UserRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
