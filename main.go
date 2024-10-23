@@ -37,8 +37,8 @@ func main() {
 
 	// Initialize the repository and service
 	userRepo := repositories.NewUserRepository(db)
-	service := services.NewService(userRepo)
-
+	targetRepo := repositories.NewTargetRepository(db)
+	service := services.NewService(userRepo, targetRepo)
 	// Initialize the Gin router and register routes
 	router := gin.Default()
 	handler := handlers.NewHandler(service)

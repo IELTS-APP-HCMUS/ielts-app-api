@@ -24,5 +24,6 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		userRoutes.GET("", middleware.UserAuthentication, h.GetUserProfile)
 		userRoutes.POST("/signup", h.SignUp)
 		userRoutes.POST("/login", h.LogIn)
+		userRoutes.GET("/target", middleware.UserAuthentication, h.GetTarget)
 	}
 }
