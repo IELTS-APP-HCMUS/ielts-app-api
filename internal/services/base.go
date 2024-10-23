@@ -5,7 +5,8 @@ import (
 )
 
 type Service struct {
-	UserRepo *repositories.UserRepository
+	UserRepo   *repositories.UserRepository
+	TargetRepo *repositories.TargetRepository
 }
 
 func NewService(repos ...interface{}) *Service {
@@ -14,6 +15,8 @@ func NewService(repos ...interface{}) *Service {
 		switch repo.(type) {
 		case *repositories.UserRepository:
 			service.UserRepo = repo.(*repositories.UserRepository)
+		case *repositories.TargetRepository:
+			service.TargetRepo = repo.(*repositories.TargetRepository)
 		default:
 			panic("Unknown repository type provided")
 		}
