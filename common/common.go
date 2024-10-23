@@ -2,8 +2,9 @@ package common
 
 // Define New Table Name here
 const (
-	POSTGRES_TABLE_NAME_USERS = "public.users"
-	POSTGRES_TABLE_NAME_ROLES = "public.roles"
+	POSTGRES_TABLE_NAME_USERS   = "public.users"
+	POSTGRES_TABLE_NAME_ROLES   = "public.roles"
+	POSTGRES_TABLE_NAME_TARGETS = "public.student_target"
 )
 
 // Define New Const variable here for each service
