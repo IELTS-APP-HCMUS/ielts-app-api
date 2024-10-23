@@ -9,8 +9,7 @@ type SignupRequest struct {
 }
 
 type LoginRequest struct {
-	Email       *string `json:"email,omitempty"`
-	Password    *string `json:"password,omitempty"`
-	AccessToken *string `json:"access_token,omitempty"`
-	IdToken     *string `json:"id_token,omitempty"`
+	Email    *string `json:"email,omitempty"`
+	Password *string `json:"password,omitempty"`
+	IdToken  *string `json:"id_token,omitempty"`
 }

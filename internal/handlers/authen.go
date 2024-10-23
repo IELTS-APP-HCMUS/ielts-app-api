@@ -30,12 +30,9 @@ func (h *Handler) LogIn(c *gin.Context) {
 		common.AbortWithError(c, common.ErrInvalidInput)
 		return
 	}
-	if req.Email != nil && req.Password == nil || req.Email == nil && req.Password != nil {
-		common.AbortWithError(c, common.ErrInvalidEmailOrPassWord)
-		return
-	}
-	if req.AccessToken != nil && req.IdToken == nil || req.AccessToken == nil && req.IdToken != nil {
-		common.AbortWithError(c, common.ErrInvalidToken)
+
+	if req.Email == nil && req.IdToken == nil {
+		common.AbortWithError(c, common.ErrInvalidInput)
 		return
 	}
 
@@ -45,5 +42,5 @@ func (h *Handler) LogIn(c *gin.Context) {
 		return
 	}
 
-	c.JSON(common.SUCCESS_STATUS, token)
+	c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Login successfully", token))
 }

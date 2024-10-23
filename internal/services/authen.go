@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"ielts-app-api/common"
 	"ielts-app-api/internal/models"
 	"io/ioutil"
@@ -55,32 +54,25 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 	var user *models.User
 	var err error
 
-	if req.AccessToken != nil {
+	if req.IdToken != nil {
 		googleUser, err := verifyGoogleOAuthToken(*req.IdToken)
 		if err != nil {
 			return nil, err
 		}
 
-		googleUserProfile, err := fetchGoogleUserProfile(*req.AccessToken)
-		if err != nil {
-			return nil, err
-		}
-		fmt.Println("Flag 01: ", googleUserProfile)
-
 		user, err = s.UserRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
-			tx.Where("email = ? OR provider= ?", googleUserProfile.Email, common.USER_PROVIDER_GOOGLE)
+			tx.Where("email = ? OR provider= ?", googleUser.Email, common.USER_PROVIDER_GOOGLE)
 		})
-		fmt.Println("Flag 02: ")
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				newUser := models.User{
-					FirstName: &googleUserProfile.GivenName,
-					LastName:  &googleUserProfile.FamilyName,
+					FirstName: &googleUser.GivenName,
+					LastName:  &googleUser.FamilyName,
 					Email:     googleUser.Email,
 					RoleID:    common.ROLE_END_USER_UUID,
 					Provider:  common.USER_PROVIDER_GOOGLE,
+					IsActive:  true,
 				}
-
 				user, err = s.UserRepo.Create(ctx, &newUser)
 				if err != nil {
 					return nil, err
@@ -90,11 +82,9 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 			}
 		}
 	} else {
-		fmt.Println("Flag 03: ")
 		user, err = s.UserRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 			tx.Where("email = ?", req.Email)
 		})
-		fmt.Println("Flag 04: ")
 
 		if err != nil {
 			return nil, err
@@ -125,7 +115,6 @@ func generateJWTToken(user *models.User) (*string, error) {
 }
 
 func verifyGoogleOAuthToken(idToken string) (*models.GoogleUser, error) {
-	fmt.Println("Flag 001: ", idToken)
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + idToken)
 	if err != nil {
 		return nil, err
@@ -137,45 +126,12 @@ func verifyGoogleOAuthToken(idToken string) (*models.GoogleUser, error) {
 		return nil, err
 	}
 
-	fmt.Println("Response Body 1:", string(bodyBytes))
-
 	if resp.StatusCode != http.StatusOK {
 		return nil, common.ErrInvalidGoogleAuthenToken
 	}
-	fmt.Println("Flag 0022: ", idToken)
 	var googleUser models.GoogleUser
 	if err := json.Unmarshal(bodyBytes, &googleUser); err != nil {
-		fmt.Println("Error 23: ", err)
 		return nil, err
 	}
-	fmt.Println("Flag 00123: ", idToken)
 	return &googleUser, nil
-}
-
-func fetchGoogleUserProfile(accessToken string) (*models.GoogleUserProfile, error) {
-	fmt.Println("Flag 001: ", accessToken)
-	resp, err := http.Get("https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + accessToken)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	// Read the response body into a variable
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("Flag 002:")
-	fmt.Println("Response Body 2:", string(bodyBytes))
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New("failed to fetch Google user profile")
-	}
-
-	var googleUserProfile models.GoogleUserProfile
-	if err := json.Unmarshal(bodyBytes, &googleUserProfile); err != nil {
-		return nil, err
-	}
-
-	return &googleUserProfile, nil
 }
