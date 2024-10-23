@@ -56,12 +56,12 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 	var err error
 
 	if req.AccessToken != nil {
-		googleUser, err := verifyGoogleOAuthToken(*req.AccessToken)
+		googleUser, err := verifyGoogleOAuthToken(*req.IdToken)
 		if err != nil {
 			return nil, err
 		}
 
-		googleUserProfile, err := fetchGoogleUserProfile(*req.IdToken)
+		googleUserProfile, err := fetchGoogleUserProfile(*req.AccessToken)
 		if err != nil {
 			return nil, err
 		}
@@ -125,6 +125,7 @@ func generateJWTToken(user *models.User) (*string, error) {
 }
 
 func verifyGoogleOAuthToken(idToken string) (*models.GoogleUser, error) {
+	fmt.Println("Flag 001: ", idToken)
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + idToken)
 	if err != nil {
 		return nil, err
@@ -136,26 +137,23 @@ func verifyGoogleOAuthToken(idToken string) (*models.GoogleUser, error) {
 		return nil, err
 	}
 
-	// Log the response body for debugging purposes
-	fmt.Println("Response Body:", string(bodyBytes))
+	fmt.Println("Response Body 1:", string(bodyBytes))
 
-	// It returns 400 if the token is invalid
 	if resp.StatusCode != http.StatusOK {
 		return nil, common.ErrInvalidGoogleAuthenToken
 	}
-
-	// Decode the response body into the googleUser struct
+	fmt.Println("Flag 0022: ", idToken)
 	var googleUser models.GoogleUser
 	if err := json.Unmarshal(bodyBytes, &googleUser); err != nil {
 		fmt.Println("Error 23: ", err)
 		return nil, err
 	}
-
+	fmt.Println("Flag 00123: ", idToken)
 	return &googleUser, nil
 }
 
 func fetchGoogleUserProfile(accessToken string) (*models.GoogleUserProfile, error) {
-
+	fmt.Println("Flag 001: ", accessToken)
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + accessToken)
 	if err != nil {
 		return nil, err
@@ -167,9 +165,8 @@ func fetchGoogleUserProfile(accessToken string) (*models.GoogleUserProfile, erro
 	if err != nil {
 		return nil, err
 	}
-
-	// Log the response body for debugging purposes
-	fmt.Println("Response Body:", string(bodyBytes))
+	fmt.Println("Flag 002:")
+	fmt.Println("Response Body 2:", string(bodyBytes))
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to fetch Google user profile")

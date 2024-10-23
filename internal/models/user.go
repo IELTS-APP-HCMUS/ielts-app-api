@@ -33,9 +33,9 @@ type GoogleUser struct {
 	EmailVerified string `json:"email_verified"`
 	Exp           string `json:"exp"`
 	AtHash        string `json:"at_hash"`
-	Alg           string `json:"alg"` // Algorithm used to sign the token
-	Kid           string `json:"kid"` // Key ID
-	Typ           string `json:"typ"` // Token type (JWT)
+	Alg           string `json:"alg"`
+	Kid           string `json:"kid"`
+	Typ           string `json:"typ"`
 }
 
 type GoogleUserProfile struct {
