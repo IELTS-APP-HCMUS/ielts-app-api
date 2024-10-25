@@ -12,6 +12,7 @@ type User struct {
 	LastName    *string   `json:"last_name" gorm:"column:last_name"`
 	Password    string    `json:"-" gorm:"password"`
 	RoleID      string    `json:"role_id" gorm:"column:role"`
+	Role        *Role     `json:"role" gorm:"foreignKey:RoleID"`
 	Status      string    `json:"status" gorm:"status"`
 	IsActive    bool      `json:"is_active" gorm:"is_active"`
 	PhoneNumber string    `json:"phone_number" gorm:"phone_number"`

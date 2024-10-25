@@ -7,7 +7,6 @@ import (
 )
 
 func (h *Handler) GetUserProfile(c *gin.Context) {
-	// userId := c.Param("user_id")
 	ok, userJWTProfile := common.ProfileFromJwt(c)
 	if !ok {
 		c.JSON(common.INTERNAL_SERVER_ERR, gin.H{"error": "User not found"})
