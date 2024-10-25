@@ -20,7 +20,7 @@ func (s *Service) GetTargetById(ctx context.Context, id string) (*models.Target,
 	return target, nil
 }
 
-func (s *Service) CreateTarget(ctx context.Context, userId string, target models.TargetRequest) (*models.Target, error) {
+func (s *Service) CreateTarget(ctx context.Context, userId string, req models.TargetRequest) (*models.Target, error) {
 	_, err := s.TargetRepo.GetByID(ctx, userId)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -32,18 +32,18 @@ func (s *Service) CreateTarget(ctx context.Context, userId string, target models
 	}
 
 	layout := "2006-01-02 15:04:05"
-	parsedNextExamDate, err := time.Parse(layout, target.NextExamDate)
+	parsedNextExamDate, err := time.Parse(layout, *req.NextExamDate)
 	if err != nil {
 		return nil, err
 	}
 
 	newTarget := models.Target{
 		ID:                  userId,
-		TargetStudyDuration: target.TargetStudyDuration,
-		TargetReading:       target.TargetReading,
-		TargetListening:     target.TargetListening,
-		TargetSpeaking:      target.TargetSpeaking,
-		TargetWriting:       target.TargetWriting,
+		TargetStudyDuration: *req.TargetStudyDuration,
+		TargetReading:       *req.TargetReading,
+		TargetListening:     *req.TargetListening,
+		TargetSpeaking:      *req.TargetSpeaking,
+		TargetWriting:       *req.TargetWriting,
 		NextExamDate:        parsedNextExamDate,
 	}
 	createdTarget, err := s.TargetRepo.Create(ctx, &newTarget)
@@ -53,42 +53,40 @@ func (s *Service) CreateTarget(ctx context.Context, userId string, target models
 	return createdTarget, nil
 }
 
-func (s *Service) UpdateTarget(ctx context.Context, userId string, target models.TargetRequest) (*models.Target, error) {
-	_, err := s.TargetRepo.GetByID(ctx, userId)
+func (s *Service) UpdateTarget(ctx context.Context, userId string, req models.TargetRequest) (*models.Target, error) {
+	updateTarget, err := s.TargetRepo.GetByID(ctx, userId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			err = common.ErrTargetNotFound
 			return nil, err
 		}
 		return nil, err
 	}
 
 	layout := "2006-01-02 15:04:05"
-	parsedNextExamDate, err := time.Parse(layout, target.NextExamDate)
+	parsedNextExamDate, err := time.Parse(layout, *req.NextExamDate)
 	if err != nil {
 		return nil, err
 	}
 
-	updateTarget := models.Target{}
-	if target.TargetStudyDuration != 0 {
-		updateTarget.TargetStudyDuration = target.TargetStudyDuration
+	if req.TargetStudyDuration != nil {
+		updateTarget.TargetStudyDuration = *req.TargetStudyDuration
 	}
-	if target.TargetReading != 0 {
-		updateTarget.TargetReading = target.TargetReading
+	if req.TargetReading != nil {
+		updateTarget.TargetReading = *req.TargetReading
 	}
-	if target.TargetListening != 0 {
-		updateTarget.TargetListening = target.TargetListening
+	if req.TargetListening != nil {
+		updateTarget.TargetListening = *req.TargetListening
 	}
-	if target.TargetSpeaking != 0 {
-		updateTarget.TargetSpeaking = target.TargetSpeaking
+	if req.TargetSpeaking != nil {
+		updateTarget.TargetSpeaking = *req.TargetSpeaking
 	}
-	if target.TargetWriting != 0 {
-		updateTarget.TargetWriting = target.TargetWriting
+	if req.TargetWriting != nil {
+		updateTarget.TargetWriting = *req.TargetWriting
 	}
-	if target.NextExamDate != "" {
+	if req.NextExamDate != nil {
 		updateTarget.NextExamDate = parsedNextExamDate
 	}
-	updatedTarget, err := s.TargetRepo.Update(ctx, userId, &updateTarget)
+	updatedTarget, err := s.TargetRepo.Update(ctx, userId, updateTarget)
 	if err != nil {
 		return nil, err
 	}
