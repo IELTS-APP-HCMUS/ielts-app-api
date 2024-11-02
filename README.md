@@ -6,7 +6,7 @@
 - Âu Lê Tuấn Nhật - MSSV: 22120250
 - Nguyễn Thành Phát - MSSV: 22120263
 ## MỤC TIÊU NHÓM TRONG MILESTONE 1
-
+![Image](https://drive.google.com/file/d/1W_6CEVgGcdpcwtcr0ThGrUz5lesHHF10/view?usp=sharing)
 
 ## CÁC CHỨC NĂNG MÀ NHÓM ĐÃ HOÀN THIỆN TRONG MILESTONE 1
 
