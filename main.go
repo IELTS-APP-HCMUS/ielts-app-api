@@ -35,11 +35,12 @@ func main() {
 		panic("Failed to connect to the database")
 	}
 
-	// Initialize the repository and service
+	// Initialize the repository and service. Add more repo and service evrytime you create a new API
 	userRepo := repositories.NewUserRepository(db)
 	targetRepo := repositories.NewTargetRepository(db)
 	service := services.NewService(userRepo, targetRepo)
-	// Initialize the Gin router and register routes
+
+	// Initialize the Gin router and register routes. Do not edit this part
 	router := gin.Default()
 	handler := handlers.NewHandler(service)
 	handler.RegisterRoutes(router)
