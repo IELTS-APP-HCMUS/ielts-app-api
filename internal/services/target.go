@@ -63,7 +63,16 @@ func (s *Service) UpdateTarget(ctx context.Context, userId string, req models.Ta
 	}
 
 	layout := "2006-01-02 15:04:05"
-	parsedNextExamDate, err := time.Parse(layout, *req.NextExamDate)
+	var parsedNextExamDate time.Time
+
+	// Parse the NextExamDate if it’s provided in the request
+	if req.NextExamDate != nil {
+		timeParsed, err := time.Parse(layout, *req.NextExamDate)
+		if err != nil {
+			return nil, fmt.Errorf("invalid NextExamDate format: %v", err)
+		}
+		parsedNextExamDate = timeParsed
+	}
 	if err != nil {
 		return nil, err
 	}
