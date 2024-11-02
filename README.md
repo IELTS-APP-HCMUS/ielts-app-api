@@ -1,0 +1,7 @@
+# MILESTONE 1: IELTS READING APP
+# MÔN: LẬP TRÌNH WINDOWS 
+# LỚP: 22_3 
+# SV THỰC HIỆN: 
+1. Mai Nhật Nam - MSSV: 22120219
+2. Âu Lê Tuấn Nhật - MSSV: 22120250
+3. Nguyễn Thành Phát - MSSV: 22120263
