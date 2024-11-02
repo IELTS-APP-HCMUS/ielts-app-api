@@ -5,6 +5,15 @@ import (
 	"time"
 )
 
+type TargetRequest struct {
+	TargetStudyDuration *int     `json:"target_study_duration"`
+	TargetReading       *float32 `json:"target_reading"`
+	TargetListening     *float32 `json:"target_listening"`
+	TargetSpeaking      *float32 `json:"target_speaking"`
+	TargetWriting       *float32 `json:"target_writing"`
+	NextExamDate        *string  `json:"next_exam_date"`
+}
+
 type Target struct {
 	ID                  string    `json:"id" gorm:"type:uuid;primaryKey"`
 	TargetStudyDuration int       `json:"target_study_duration" gorm:"column:target_study_duration"`
