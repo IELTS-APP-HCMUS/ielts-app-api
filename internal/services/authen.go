@@ -61,7 +61,7 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 		}
 
 		user, err = s.UserRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
-			tx.Where("email = ? OR provider= ?", googleUser.Email, common.USER_PROVIDER_GOOGLE)
+			tx.Where("email = ? AND provider= ?", googleUser.Email, common.USER_PROVIDER_GOOGLE)
 		})
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
