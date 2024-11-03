@@ -34,7 +34,7 @@
   3. **Footer của trang**: Chứa thông tin liên lạc và các thông tin liên quan đến bản quyền app.
 
 ## CÁC CHỨC NĂNG MÀ NHÓM ĐÃ HOÀN THIỆN TRONG MILESTONE 1
-- Với chức năng đăng nhập/đăng ký: App đã có thể đăng nhập qua email + password, remember me, đăng nhập qua google, đăng ký tài khoản thông thường
+- Với chức năng đăng nhập/đăng ký: App đã có thể đăng nhập qua email + password, remember me, đăng nhập qua google, đăng ký tài khoản thông thường.
 - Với màn hình homepage: Hiện tại các mục đều đã hoàn thiện cơ bản nhưng vẫn còn 1 số lỗi được đề cập trong phần "CÁC CHỨC NĂNG CHƯA HOÀN THIỆN VÀ CÒN LỖI TRONG MILESTONE 1".
 - Với màn hình AboutUs: Hiện tại các mục đều đã hoàn thiện cơ bản nhưng vẫn còn 1 số lỗi được đề cập trong phần "CÁC CHỨC NĂNG CHƯA HOÀN THIỆN VÀ CÒN LỖI TRONG MILESTONE 1".
 
@@ -109,10 +109,33 @@ login_full/
 - **UI Test**: Ngoài ra nhóm kết hợp với việc viết UI test cũng như là mannual testing để đảm bảo ít lỗi xảy ra nhất. Các test case thầy có thể tìm thấy ở link [Google Sheets này](https://docs.google.com/spreadsheets/d/1tb8dCWPa4k6dqzmSZ1OEZAzH4eXli-zu/edit?usp=sharing&ouid=101425335323710410200&rtpof=true&sd=true) 
 
 ## HƯỚNG DẪN GIÁO VIÊN CHẤM BÀI CỦA NHÓM TRONG MILESTONE 1
+- Do app chưa được deploy và còn chạy ở local nên khi đăng nhập qua Oauth thì để API `https://oauth2.googleapis.com/tokeninfo?id_token` trả ra field `name` để phía API Login sẽ sử dụng field `name` này để ghi vào database nên nhóm em cần người dùng sẽ phải thao tác thiết lập OAuth trên Google Console đúng cách để ứng dụng có quyền truy cập các thông tin cần thiết (chẳng hạn như email và user ID của người dùng).
+- Các bước thao tác như sau:
+
+  1. **Tạo OAuth Consent Screen (Màn hình đồng ý OAuth)**
+      - Vào [Google Cloud Console](https://console.cloud.google.com/).
+      - Chọn dự án hoặc tạo dự án mới.
+      - Điều hướng tới **APIs & Services > OAuth consent screen**.
+      - Cấu hình các thông tin cơ bản cho màn hình đồng ý, chẳng hạn như tên ứng dụng, địa chỉ email liên hệ, v.v.
+      - Thêm các **scope** bạn muốn (như email và user ID). Những scope này sẽ yêu cầu người dùng cho phép chia sẻ các thông tin cần thiết khi họ đăng nhập.
+      - Bấm Update để đồng ý cập nhật.
+
+  2. **Tạo OAuth 2.0 Client ID**
+      - Điều hướng tới **APIs & Services > Credentials**.
+      - Nhấn vào **Create Credentials** và chọn **OAuth client ID**.
+      - Trong mục **Application type**, chọn **Web application**.
+      - Điền các thông tin cần thiết:
+      - Tạo client ID và client secret cho ứng dụng của bạn.
+
+  3. **Cấu hình scope cho email và user ID**
+      - Trong Google Console, trong quá trình thiết lập OAuth, hãy thêm các scope sau:
+        - `https://www.googleapis.com/auth/userinfo.email` để truy cập email của người dùng.
+        - `https://www.googleapis.com/auth/userinfo.profile` để truy cập thông tin cơ bản của người dùng như tên và ID.
+      - Điều này sẽ đảm bảo rằng khi người dùng đăng nhập qua OAuth, ứng dụng sẽ có quyền truy cập thông tin email và ID của họ.
 
 
 ## TỔNG KẾT - ĐÁNH GIÁ CỦA NHÓM TRONG MILESTONE 1
-
+- Nhìn chung nhóm đã hoàn thành được 80% mục tiêu đề ra tuy vẫn còn rất nhiều thiếu sót lớn nên nhóm em đã rút kinh nghiệm và sẽ tập trung sửa các lỗi còn được nêu ở trên đối với milestone 2
 
 
 
