@@ -62,12 +62,6 @@ func (s *Service) UpdateTarget(ctx context.Context, userId string, req models.Ta
 		return nil, err
 	}
 
-	layout := "2006-01-02 15:04:05"
-	parsedNextExamDate, err := time.Parse(layout, *req.NextExamDate)
-	if err != nil {
-		return nil, err
-	}
-
 	if req.TargetStudyDuration != nil {
 		updateTarget.TargetStudyDuration = *req.TargetStudyDuration
 	}
@@ -84,6 +78,11 @@ func (s *Service) UpdateTarget(ctx context.Context, userId string, req models.Ta
 		updateTarget.TargetWriting = *req.TargetWriting
 	}
 	if req.NextExamDate != nil {
+		layout := "2006-01-02"
+		parsedNextExamDate, err := time.Parse(layout, *req.NextExamDate)
+		if err != nil {
+			return nil, err
+		}
 		updateTarget.NextExamDate = parsedNextExamDate
 	}
 	updatedTarget, err := s.TargetRepo.Update(ctx, userId, updateTarget)

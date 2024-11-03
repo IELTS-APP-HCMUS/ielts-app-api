@@ -41,7 +41,25 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 			FirstName: &req.FirstName,
 			LastName:  &req.LastName,
 		}
-		_, err = s.UserRepo.Create(ctx, &newUser)
+		user, err := s.UserRepo.Create(ctx, &newUser)
+		if err != nil {
+			return err
+		}
+		defaultDate := "1900-01-01" // default date
+		parsedTime, err := time.Parse(time.DateOnly, defaultDate)
+		if err != nil {
+			return err
+		}
+		newUserTarget := models.Target{
+			ID:                  user.ID,
+			TargetStudyDuration: 0,
+			TargetReading:       -1,
+			TargetListening:     -1,
+			TargetSpeaking:      -1,
+			TargetWriting:       -1,
+			NextExamDate:        parsedTime,
+		}
+		_, err = s.TargetRepo.Create(ctx, &newUserTarget)
 		if err != nil {
 			return err
 		}
@@ -61,7 +79,7 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 		}
 
 		user, err = s.UserRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
-			tx.Where("email = ? OR provider= ?", googleUser.Email, common.USER_PROVIDER_GOOGLE)
+			tx.Where("email = ? AND provider= ?", googleUser.Email, common.USER_PROVIDER_GOOGLE)
 		})
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -74,6 +92,24 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 					IsActive:  true,
 				}
 				user, err = s.UserRepo.Create(ctx, &newUser)
+				if err != nil {
+					return nil, err
+				}
+				defaultDate := "1900-01-01" // default date
+				parsedTime, err := time.Parse(time.DateOnly, defaultDate)
+				if err != nil {
+					return nil, err
+				}
+				newUserTarget := models.Target{
+					ID:                  user.ID,
+					TargetStudyDuration: 0,
+					TargetReading:       -1,
+					TargetListening:     -1,
+					TargetSpeaking:      -1,
+					TargetWriting:       -1,
+					NextExamDate:        parsedTime,
+				}
+				_, err = s.TargetRepo.Create(ctx, &newUserTarget)
 				if err != nil {
 					return nil, err
 				}
