@@ -19,6 +19,11 @@ func NewHandler(service *services.Service) *Handler {
 
 // Define API route here
 func (h *Handler) RegisterRoutes(c *gin.Engine) {
+	// Health check
+	health := c.Group("api/health")
+	{
+		health.GET("/status", h.CheckStatusHealth)
+	}
 	userRoutes := c.Group("/api/users")
 	{
 		userRoutes.GET("", middleware.UserAuthentication, h.GetUserProfile)
