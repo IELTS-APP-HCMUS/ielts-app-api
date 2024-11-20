@@ -33,4 +33,10 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		userRoutes.POST("/target", middleware.UserAuthentication, h.CreateTarget)
 		userRoutes.PATCH("/target", middleware.UserAuthentication, h.UpdateTarget)
 	}
+	authRoutes := c.Group("/api/auth")
+	{
+		authRoutes.POST("/request-reset-password", h.RequestResetPassword)
+		authRoutes.POST("/validate-otp", h.ValidateOTP)
+		authRoutes.POST("/reset-password", h.ResetPassword)
+	}
 }

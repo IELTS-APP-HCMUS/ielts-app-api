@@ -46,7 +46,8 @@
 - Do đây là lần đầu nhóm em được tiếp xúc với quy trình phát triển 1 phần mềm nên tất nhiên nhóm sẽ chưa thể nào hoàn thiện được 1 cách trọn vẹn được và nhóm em cam kết sẽ cải thiện những điểm này ngay ở trong milestone tiếp theo.
 
 ## DESIGN PATTERNS/ ARCHITECTURE ĐƯỢC SỬ DỤNG TRONG MILESTONE 1
-- **Về Architecture**: Nhóm em đang sử dụng mô hình MVVM nhưng chưa thật sự hiểu rõ cách cấu hình folder/files cho mô hình này nên sẽ có 1 kế hoạch điều chỉnh lớn về code structure trong milestone số 2. Hiện tại code structure của nhóm còn rất lộn xộn và chỉ đang cơ bản là tạo 1 màn hình .xaml và file cs của màn hình đó tương ứng. Và theo mô hình này thì nhóm em sẽ có kế hoạch chỉnh sửa define các file/Folder như sau:
+**Về Architecture**
+- Với phần source FE: Nhóm em đang sử dụng mô hình MVVM nhưng chưa thật sự hiểu rõ cách cấu hình folder/files cho mô hình này nên sẽ có 1 kế hoạch điều chỉnh lớn về code structure trong milestone số 2. Hiện tại code structure của nhóm còn rất lộn xộn và chỉ đang cơ bản là tạo 1 màn hình .xaml và file cs của màn hình đó tương ứng. Và theo mô hình này thì nhóm em sẽ có kế hoạch chỉnh sửa define các file/Folder như sau:
 ```plaintext
 login_full/
 ├── Models/
@@ -83,7 +84,101 @@ login_full/
 ├── App.xaml.cs
 └── ... (Các file và thư mục khác nếu cần)
 ```
-- **Về design patterns** nhóm có sử dụng Singleton cho GlobalState để lưu trữ trạng thái ứng dụng để sử dụng GlobalState.Instance ở bất kỳ đâu trong ứng dụng để truy cập đến AccessToken hoặc UserProfile được lưu trữ trong GlobalState mà không cần phải khởi tạo lại lớp. Nhưng điểm nhóm em chưa kịp sửa lại đối với việc xử lý AccessToken đó là hash những thông tin nhạy cảm này đi ạ.
+- Với phần source BE (ngôn ngữ Golang - framework GIN): Nhóm em đã xây dựng source dựa trên **Clean Architecture** với các thư mục được tổ chức rõ ràng, tách biệt trách nhiệm và phụ thuộc, giúp dễ bảo trì và mở rộng. Hơn nữa, với phần source BE nhóm tụi em đã deploy API lên server của Render. Tuy nhiên, Render sẽ cho hệ thống API vào trạng thái sleep nếu như sau 15' mà không có bất kì 1 API nào được request đến. Và nếu như server API bị sleep thì lần gọi API tiếp theo sẽ phải mất 1 khoảng thời gian khá lâu để gọi được API (>=50s) nên nhóm em đã có sử dụng thêm 1 service cron job free có tên là [cronjob.org] (https://cron-job.org/en/) để cứ mỗi 10', nhóm em sẽ cho con cron job này gọi đến 1 API Get bất kì để giữ server không bị sleep. 
+  1. **cmd**: Thư mục này thường chứa các điểm khởi đầu chính của ứng dụng. Trong trường hợp này, có thể có một tệp chính trong `cmd` để khởi chạy ứng dụng.
+  2. **common**: Thư mục này chứa các đoạn mã tiện ích và các chức năng dùng chung trong toàn bộ ứng dụng:
+       - `db.go`: Chứa cấu hình và các hàm kết nối cơ sở dữ liệu.
+       - `error.go`, `error_messages.go`: Xử lý các loại lỗi tùy chỉnh và thông điệp lỗi.
+       - `helper.go`, `utils.go`: Các hàm trợ giúp chung có thể tái sử dụng trong các package khác.
+       - `jwt.go`: Quản lý mã JWT, xử lý mã hóa và giải mã để xác thực.
+  3. **config**: Thư mục này có thể chứa các thiết lập và cấu hình liên quan đến ứng dụng, như các tệp cấu hình hoặc các tham số cấu hình hệ thống.
+  4. **internal**: Thư mục `internal` chứa các thành phần cốt lõi của ứng dụng, không được truy cập từ bên ngoài, và được chia thành các thư mục con theo vai trò:
+     - handlers: chứa các tệp xử lý logic API như `authen.go` (Xử lý logic xác thực người dùng), `check_health.go` (Kiểm tra tình trạng của dịch vụ), `target.go`, `user.go`(Xử lý các chức năng liên quan đến đối tượng `target` và `user`)
+     - models: chứa các tệp định nghĩa cấu trúc dữ liệu của ứng dụng (models) như `authen.go`, `user.go`, `target.go`, `role.go`, `base.go` để định nghĩa cấu trúc dữ liệu cho các đối tượng liên quan như `user`, `role` (vai trò), `target` (đối tượng), v.v.
+     - repositories: chứa các tệp làm việc với cơ sở dữ liệu như `authen.go`, `user.go`, `target.go`, `base.go` để xử lý các thao tác CRUD (tạo, đọc, cập nhật, xóa) cho từng đối tượng cụ thể, đảm bảo tách biệt việc truy cập dữ liệu khỏi logic nghiệp vụ.
+     - services: chứa các tệp xử lý logic nghiệp vụ như `authen.go`, `user.go`, `target.go`, `base.go` để xử lý logic nghiệp vụ cho từng đối tượng cụ thể, đóng vai trò trung gian giữa các `handler` và `repository`.
+     - middleware: chứa các tệp xử lý trung gian (middleware) như  `admin_authentication.go`, `user_authentication.go` để quản lý xác thực và phân quyền, kiểm tra quyền truy cập của admin và user.
+  5. **pkg**: để chứa các package bổ trợ như `postgres` (Chứa các tiện ích hoặc cấu hình dành riêng cho PostgreSQL) hay `utils` (Các tiện ích khác có thể cần thiết cho nhiều phần của ứng dụng).
+  6. **script**: Chứa các script hoặc tệp SQL cần thiết cho ứng dụng
+  7. **Các tệp cấu hình chung**:
+  - `.env`: Tệp môi trường, chứa các biến môi trường như cấu hình cơ sở dữ liệu, thông tin API, v.v.
+  - `go.mod`, `go.sum`: Quản lý các module và dependencies của Go.
+  - `.gitignore`: Xác định các tệp và thư mục không cần thiết đẩy lên Git.
+ 
+Cấu trúc này giúp phân chia rõ ràng giữa các tầng (layer) của ứng dụng:
+- **handlers** cho việc xử lý HTTP.
+- **services** cho logic nghiệp vụ.
+- **repositories** cho truy cập dữ liệu.
+- **models** cho các định nghĩa dữ liệu.
+
+
+
+**Về design patterns** nhóm có sử dụng Singleton cho GlobalState để lưu trữ trạng thái ứng dụng để sử dụng GlobalState.Instance ở bất kỳ đâu trong ứng dụng để truy cập đến AccessToken hoặc UserProfile được lưu trữ trong GlobalState mà không cần phải khởi tạo lại lớp. Nhưng điểm nhóm em chưa kịp sửa lại đối với việc xử lý AccessToken đó là hash những thông tin nhạy cảm này đi ạ.
+
+**Về database**:  
+- Dưới đây là mô tả về các bảng trong cơ sở dữ liệu trong milestone 1 của nhóm: 
+
+1. **Bảng `access_control_list`**
+   Bảng này dùng để kiểm soát quyền truy cập của người dùng vào các hành động cụ thể trong hệ thống.
+   - **Cột chính**:
+     - `id`: Mã định danh duy nhất cho từng bản ghi.
+     - `action_id`: Xác định hành động cụ thể mà người dùng có thể truy cập.
+     - `role_id`: Liên kết với vai trò của người dùng để xác định quyền hạn.
+     - `status`: Trạng thái của quyền truy cập.
+     - `user_id`: Xác định người dùng cụ thể nếu cần.
+
+2. **Bảng `roles`**
+   Chứa thông tin về các vai trò trong hệ thống, mỗi vai trò có các quyền và hạn chế riêng.
+   - **Cột chính**:
+     - `id`: Mã định danh duy nhất cho vai trò.
+     - `name`: Tên của vai trò (ví dụ: `Admin`, `End User`).
+     - `enforce_tfa`: Cờ boolean cho biết vai trò này có yêu cầu xác thực hai yếu tố (TFA) hay không.
+     - `admin_access`: Xác định quyền truy cập với tư cách admin.
+     - `app_access`: Xác định quyền truy cập ứng dụng thông thường.
+     - `public_access`: Quyền truy cập công khai (nếu có).
+
+3. **Bảng `student_target`**
+   Bảng này lưu các mục tiêu học tập của sinh viên cho các kỹ năng khác nhau.
+   - **Cột chính**:
+     - `id`: Mã định danh duy nhất cho từng sinh viên.
+     - `target_study_duration`: Thời gian học tập mục tiêu của sinh viên.
+     - `target_reading`: Điểm mục tiêu cho kỹ năng đọc.
+     - `target_listening`: Điểm mục tiêu cho kỹ năng nghe.
+     - `target_speaking`: Điểm mục tiêu cho kỹ năng nói.
+     - `target_writing`: Điểm mục tiêu cho kỹ năng viết.
+
+4. **Bảng `users`**
+   Chứa thông tin về người dùng trong hệ thống.
+   - **Các fiekd chính**:
+     - `id`: Mã định danh duy nhất cho mỗi người dùng.
+     - `first_name`: Tên của người dùng.
+     - `last_name`: Họ của người dùng.
+     - `email`: Email của người dùng.
+     - `password`: Mật khẩu (có thể được mã hóa) của người dùng.
+     - `location`: Vị trí của người dùng.
+     - `title`: Chức danh của người dùng.
+     - `tags`: Thẻ gán cho người dùng (JSON).
+     - `avatar`: Mã định danh ảnh đại diện của người dùng.
+     - `language`: Ngôn ngữ của người dùng.
+     - `tfa_secret`: Bí mật dùng để thiết lập xác thực hai yếu tố.
+     - `status`: Trạng thái tài khoản của người dùng.
+     - `role`: Liên kết vai trò của người dùng (liên kết với bảng `roles`).
+     - `token`: Thông tin token truy cập.
+     - `last_access`: Thời gian truy cập cuối cùng.
+     - `provider`: Nhà cung cấp dịch vụ xác thực.
+     - `external_identifier`: Định danh bên ngoài của người dùng.
+     - `auth_data`: Dữ liệu xác thực bổ sung.
+     - `email_notifications`: Tùy chọn nhận thông báo qua email.
+     - `birthday`: Ngày sinh của người dùng.
+     - `referrer_email`: Email người giới thiệu.
+     - `fullname`: Họ và tên đầy đủ.
+     - `search`: Chỉ mục tìm kiếm.
+     - `facebook_url`: URL Facebook của người dùng.
+     - `verify_token`: Token xác thực.
+     - `is_active`: Trạng thái hoạt động của tài khoản.
+     - `phone_number`: Số điện thoại của người dùng.
+---
+Cấu trúc này giúp phân chia quyền hạn và chức năng của từng người dùng trong hệ thống thông qua các bảng `roles` và `access_control_list`. Mối quan hệ giữa các bảng cho phép xác định chi tiết quyền truy cập và các mục tiêu học tập của sinh viên.
 
 ## ADVANCED TOPIC CỦA NHÓM TRONG MILESTONE 1
 - Các topic nâng cao mà nhóm đã sử dụng trong milestone này là
@@ -136,6 +231,9 @@ login_full/
 
 ## TỔNG KẾT - ĐÁNH GIÁ CỦA NHÓM TRONG MILESTONE 1
 - Nhìn chung nhóm đã hoàn thành được 80% mục tiêu đề ra tuy vẫn còn rất nhiều thiếu sót lớn nên nhóm em đã rút kinh nghiệm và sẽ tập trung sửa các lỗi còn được nêu ở trên đối với milestone 2
+
+
+
 
 
 

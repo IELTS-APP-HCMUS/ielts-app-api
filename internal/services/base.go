@@ -7,6 +7,7 @@ import (
 type Service struct {
 	UserRepo   *repositories.UserRepository
 	TargetRepo *repositories.TargetRepository
+	OTPRepo    *repositories.OTPRepository
 }
 
 func NewService(repos ...interface{}) *Service {
@@ -17,6 +18,8 @@ func NewService(repos ...interface{}) *Service {
 			service.UserRepo = repo.(*repositories.UserRepository)
 		case *repositories.TargetRepository:
 			service.TargetRepo = repo.(*repositories.TargetRepository)
+		case *repositories.OTPRepository:
+			service.OTPRepo = repo.(*repositories.OTPRepository)
 		default:
 			panic("Unknown repository type provided")
 		}
