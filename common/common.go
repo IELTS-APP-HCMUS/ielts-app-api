@@ -5,6 +5,7 @@ const (
 	POSTGRES_TABLE_NAME_USERS   = "public.users"
 	POSTGRES_TABLE_NAME_ROLES   = "public.roles"
 	POSTGRES_TABLE_NAME_TARGETS = "public.student_target"
+	POSTGRES_TABLE_NAME_OTPS    = "public.otps"
 )
 
 // Define New Const variable here for each service
@@ -16,3 +17,6 @@ const (
 )
 
 // Define other common variable here
+const (
+	FromEmail = "mainhatnam01@gmail.com"
+)

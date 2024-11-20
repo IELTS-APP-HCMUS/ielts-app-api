@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"ielts-app-api/common"
 	"ielts-app-api/internal/models"
 	"io/ioutil"
@@ -170,4 +171,84 @@ func verifyGoogleOAuthToken(idToken string) (*models.GoogleUser, error) {
 		return nil, err
 	}
 	return &googleUser, nil
+}
+
+func (s *Service) GenerateOTP(ctx context.Context, email string) (string, error) {
+	otp := common.GenerateRandomOTP()
+
+	expiry, err := common.NormalizeToBangkokTimezone(time.Now().Add(5 * time.Minute))
+	if err != nil {
+		return "", err
+	}
+
+	newOTP := models.OTP{
+		Email:  email,
+		OTP:    otp,
+		Expiry: expiry,
+	}
+
+	_, err = s.OTPRepo.Create(ctx, &newOTP)
+	if err != nil {
+		return "", err
+	}
+
+	return otp, nil
+}
+
+func (s *Service) ValidateOTP(ctx context.Context, email, otp string) error {
+	// Fetch the stored OTP for the given email
+	storedOTP, err := s.OTPRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("email = ?", email)
+	})
+	if err != nil {
+		return errors.New("invalid OTP")
+	}
+
+	// Check if OTP has expired
+	currentTime, err := common.NormalizeToBangkokTimezone(time.Now())
+	if err != nil {
+		return err
+	}
+	expiryTime, err := common.NormalizeToBangkokTimezone(storedOTP.Expiry)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("current time: ", currentTime)
+	fmt.Println("expiry time: ", expiryTime)
+
+	if expiryTime.Before(currentTime) {
+		return errors.New("OTP has expired")
+	}
+
+	if storedOTP.OTP != otp {
+		return errors.New("invalid OTP")
+	}
+
+	return nil
+}
+
+func (s *Service) ResetPassword(ctx context.Context, email, newPassword string) error {
+	_, err := s.UserRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("email = ?", email)
+	})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("email not found")
+		}
+		return err
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	updatedUser := models.User{
+		Password: string(hashedPassword),
+	}
+
+	return s.UserRepo.UpdatesByConditions(ctx, &updatedUser, func(tx *gorm.DB) {
+		tx.Where("email = ?", email)
+	})
 }
