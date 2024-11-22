@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"ielts-app-api/common"
 	"ielts-app-api/internal/models"
 	"io/ioutil"
@@ -176,15 +175,28 @@ func verifyGoogleOAuthToken(idToken string) (*models.GoogleUser, error) {
 func (s *Service) GenerateOTP(ctx context.Context, email string) (string, error) {
 	otp := common.GenerateRandomOTP()
 
-	expiry, err := common.NormalizeToBangkokTimezone(time.Now().Add(5 * time.Minute))
-	if err != nil {
+	expiry := time.Now().UTC().Add(1 * time.Minute)
+
+	existingOTP, err := s.OTPRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("target = ? AND type = ?", email, common.TypeResetPassword)
+	})
+
+	if err == nil {
+		existingOTP.IsVerified = true
+		_, err = s.OTPRepo.Update(ctx, existingOTP.ID, existingOTP)
+		if err != nil {
+			return "", common.ErrFailedToInValidateExistingOTP
+		}
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return "", err
 	}
 
 	newOTP := models.OTP{
-		Email:  email,
-		OTP:    otp,
-		Expiry: expiry,
+		Target:     email,
+		Type:       common.TypeResetPassword,
+		OTPCode:    otp,
+		ExpiredAt:  expiry,
+		IsVerified: false,
 	}
 
 	_, err = s.OTPRepo.Create(ctx, &newOTP)
@@ -196,34 +208,53 @@ func (s *Service) GenerateOTP(ctx context.Context, email string) (string, error)
 }
 
 func (s *Service) ValidateOTP(ctx context.Context, email, otp string) error {
-	// Fetch the stored OTP for the given email
 	storedOTP, err := s.OTPRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
-		tx.Where("email = ?", email)
+		tx.Where("target = ? AND type = ?", email, common.TypeResetPassword)
+		tx.Order("created_at desc")
 	})
 	if err != nil {
-		return errors.New("invalid OTP")
+		return err
+	}
+	if storedOTP.IsVerified {
+		return common.ErrOTPAlreadyVerified
 	}
 
-	// Check if OTP has expired
+	expiryTime, err := common.NormalizeToBangkokTimezone(storedOTP.ExpiredAt)
+	if err != nil {
+		return err
+	}
 	currentTime, err := common.NormalizeToBangkokTimezone(time.Now())
 	if err != nil {
 		return err
 	}
-	expiryTime, err := common.NormalizeToBangkokTimezone(storedOTP.Expiry)
-	if err != nil {
-		return err
-	}
 
-	fmt.Println("current time: ", currentTime)
-	fmt.Println("expiry time: ", expiryTime)
+	newAttempt := models.OTPAttempt{
+		OTPID:     storedOTP.ID,
+		Value:     otp,
+		IsSuccess: false,
+		CreatedAt: currentTime,
+	}
 
 	if expiryTime.Before(currentTime) {
-		return errors.New("OTP has expired")
+		newAttempt.IsSuccess = false
+		_, _ = s.OTPAttemptRepo.Create(ctx, &newAttempt)
+		return common.ErrOTPExpired
 	}
 
-	if storedOTP.OTP != otp {
-		return errors.New("invalid OTP")
+	if storedOTP.OTPCode != otp {
+		newAttempt.IsSuccess = false
+		_, _ = s.OTPAttemptRepo.Create(ctx, &newAttempt)
+		return common.ErrInvalidOTP
 	}
+
+	storedOTP.IsVerified = true
+	_, err = s.OTPRepo.Update(ctx, storedOTP.ID, storedOTP)
+	if err != nil {
+		return common.ErrFailedToUpdateOTPStatus
+	}
+
+	newAttempt.IsSuccess = true
+	_, _ = s.OTPAttemptRepo.Create(ctx, &newAttempt)
 
 	return nil
 }
@@ -234,7 +265,7 @@ func (s *Service) ResetPassword(ctx context.Context, email, newPassword string) 
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("email not found")
+			return common.ErrEmailNotFound
 		}
 		return err
 	}

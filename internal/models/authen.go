@@ -20,11 +20,14 @@ type LoginRequest struct {
 }
 
 type OTP struct {
-	Email     string    `gorm:"primaryKey;size:255;not null" json:"email"`
-	OTP       string    `gorm:"size:6;not null" json:"otp"`
-	Expiry    time.Time `gorm:"not null" json:"expiry"`
-	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	ID         uint      `gorm:"primaryKey" json:"id"`
+	Target     string    `gorm:"size:255;not null" json:"target"`
+	Type       string    `gorm:"size:50;not null" json:"type"`
+	OTPCode    string    `gorm:"size:6;not null" json:"otp_code"`
+	ExpiredAt  time.Time `gorm:"not null" json:"expired_at"`
+	IsVerified bool      `gorm:"default:false" json:"is_verified"`
+	CreatedAt  time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt  time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }
 
 func (OTP) TableName() string {
@@ -34,4 +37,21 @@ func (OTP) TableName() string {
 type ResetPasswordRequest struct {
 	Email       string `json:"email" binding:"required,email"`
 	NewPassword string `json:"new_password" binding:"required"`
+}
+
+type OTPAttempt struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	OTPID     uint      `gorm:"not null" json:"otp_id"`
+	Value     string    `gorm:"size:6;not null" json:"value"`
+	IsSuccess bool      `gorm:"default:false" json:"is_success"`
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+}
+
+func (OTPAttempt) TableName() string {
+	return common.POSTGRES_TABLE_NAME_OTP_ATTEMPTS
+}
+
+type OTPValidateRequest struct {
+	Email string `json:"email" binding:"required,email"`
+	OTP   string `json:"otp" binding:"required"`
 }
