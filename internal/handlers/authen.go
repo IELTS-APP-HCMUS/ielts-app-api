@@ -51,66 +51,55 @@ func (h *Handler) RequestResetPassword(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		common.AbortWithError(c, err)
 		return
 	}
 
 	otp, err := h.service.GenerateOTP(c.Request.Context(), req.Email)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate OTP"})
+		common.AbortWithError(c, err)
 		return
 	}
 
 	err = common.SendOTPEmail(common.FromEmail, req.Email, otp)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send OTP"})
+		common.AbortWithError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "OTP sent successfully"})
+	c.JSON(common.SUCCESS_STATUS, common.BaseResponse(http.StatusOK, "OTP email sent successfully", "", ""))
 }
 
 func (h *Handler) ValidateOTP(c *gin.Context) {
-	var req struct {
-		Email string `json:"email" binding:"required,email"`
-		OTP   string `json:"otp" binding:"required"`
-	}
+	var req models.OTPValidateRequest
 
-	// Bind and validate the request body
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		common.AbortWithError(c, err)
 		return
 	}
 
-	// Call the service to validate the OTP
 	err := h.service.ValidateOTP(c.Request.Context(), req.Email, req.OTP)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		common.AbortWithError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "OTP validated successfully"})
+	c.JSON(common.SUCCESS_STATUS, common.BaseResponse(http.StatusOK, "OTP validated successfully", "", ""))
 }
 
 func (h *Handler) ResetPassword(c *gin.Context) {
 	var req models.ResetPasswordRequest
 
-	// Validate the incoming request body
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		common.AbortWithError(c, err)
 		return
 	}
 
-	// Call the service to reset the password
 	err := h.service.ResetPassword(c.Request.Context(), req.Email, req.NewPassword)
 	if err != nil {
-		if err.Error() == "email not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reset password"})
-		}
+		common.AbortWithError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Password reset successfully"})
+	c.JSON(common.SUCCESS_STATUS, common.BaseResponse(http.StatusOK, "Password Reset successfully", "", ""))
 }

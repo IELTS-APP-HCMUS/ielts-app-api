@@ -15,3 +15,13 @@ func NewOTPRepository(db *gorm.DB) *OTPRepository {
 		BaseRepository: NewBaseRepository[models.OTP](db),
 	}
 }
+
+type OTPAttemptRepository struct {
+	BaseRepository[models.OTPAttempt]
+}
+
+func NewOTPAttemptRepository(db *gorm.DB) *OTPAttemptRepository {
+	return &OTPAttemptRepository{
+		BaseRepository: NewBaseRepository[models.OTPAttempt](db),
+	}
+}
