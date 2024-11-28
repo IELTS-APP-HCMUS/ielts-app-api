@@ -27,7 +27,6 @@ func NewService(repos ...interface{}) *Service {
 			service.quizRepo = repo.(*repositories.QuizRepo)
 		case *repositories.QuizSkillRepo:
 			service.quizSkillRepo = repo.(*repositories.QuizSkillRepo)
-			service.TargetRepo = repo.(*repositories.TargetRepository)
 		case *repositories.OTPRepository:
 			service.OTPRepo = repo.(*repositories.OTPRepository)
 		case *repositories.OTPAttemptRepository:
