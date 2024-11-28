@@ -39,4 +39,16 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		authRoutes.POST("/validate-otp", h.ValidateOTP)
 		authRoutes.POST("/reset-password", h.ResetPassword)
 	}
+
+	quizzes := c.Group("/v1/quizzes")
+	{
+		// API Get Quiz Detail
+		// quizzes.GET("/:quiz_id", middleware.OptionalUserAuthentication(), h.GetQuiz())
+
+		// API Get Quiz Answer
+		// quizzes.GET("/answers/:answer_id", middleware.UserAuthentication(), h.GetQuizAnswer())
+
+		//API Listing Quiz
+		quizzes.GET("", middleware.OptionalUserAuthentication(), h.GetQuizzes())
+	}
 }

@@ -181,3 +181,23 @@ func NormalizeToBangkokTimezone(t time.Time) (time.Time, error) {
 	}
 	return t.In(location), nil
 }
+
+const (
+	defaultLimit    = 20
+	defaultPage     = 1
+	defaultPageSize = 10
+	maxLimit        = 200
+)
+
+func GetPageAndPageSize(page, pageSize int) (int, int) {
+	if page == 0 {
+		page = defaultPage
+	}
+	if pageSize == 0 {
+		pageSize = defaultPageSize
+	}
+	if pageSize > maxLimit {
+		pageSize = maxLimit
+	}
+	return page, pageSize
+}

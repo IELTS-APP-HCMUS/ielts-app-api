@@ -5,6 +5,10 @@ import (
 )
 
 type Service struct {
+	userRepo       *repositories.UserRepository
+	targetRepo     *repositories.TargetRepository
+	quizRepo       *repositories.QuizRepo
+	quizSkillRepo  *repositories.QuizSkillRepo
 	UserRepo       *repositories.UserRepository
 	TargetRepo     *repositories.TargetRepository
 	OTPRepo        *repositories.OTPRepository
@@ -16,8 +20,13 @@ func NewService(repos ...interface{}) *Service {
 	for _, repo := range repos {
 		switch repo.(type) {
 		case *repositories.UserRepository:
-			service.UserRepo = repo.(*repositories.UserRepository)
+			service.userRepo = repo.(*repositories.UserRepository)
 		case *repositories.TargetRepository:
+			service.targetRepo = repo.(*repositories.TargetRepository)
+		case *repositories.QuizRepo:
+			service.quizRepo = repo.(*repositories.QuizRepo)
+		case *repositories.QuizSkillRepo:
+			service.quizSkillRepo = repo.(*repositories.QuizSkillRepo)
 			service.TargetRepo = repo.(*repositories.TargetRepository)
 		case *repositories.OTPRepository:
 			service.OTPRepo = repo.(*repositories.OTPRepository)
