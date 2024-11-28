@@ -142,3 +142,23 @@ func ContainsString(slice []string, item string) bool {
 	}
 	return false
 }
+
+const (
+	defaultLimit    = 20
+	defaultPage     = 1
+	defaultPageSize = 10
+	maxLimit        = 200
+)
+
+func GetPageAndPageSize(page, pageSize int) (int, int) {
+	if page == 0 {
+		page = defaultPage
+	}
+	if pageSize == 0 {
+		pageSize = defaultPageSize
+	}
+	if pageSize > maxLimit {
+		pageSize = maxLimit
+	}
+	return page, pageSize
+}
