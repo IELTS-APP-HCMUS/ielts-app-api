@@ -89,12 +89,10 @@ func (h *Handler) ValidateOTP(c *gin.Context) {
 
 func (h *Handler) ResetPassword(c *gin.Context) {
 	var req models.ResetPasswordRequest
-
 	if err := c.ShouldBindJSON(&req); err != nil {
 		common.AbortWithError(c, err)
 		return
 	}
-
 	err := h.service.ResetPassword(c.Request.Context(), req.Email, req.NewPassword)
 	if err != nil {
 		common.AbortWithError(c, err)

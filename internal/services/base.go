@@ -9,7 +9,6 @@ type Service struct {
 	targetRepo     *repositories.TargetRepository
 	quizRepo       *repositories.QuizRepo
 	quizSkillRepo  *repositories.QuizSkillRepo
-	UserRepo       *repositories.UserRepository
 	TargetRepo     *repositories.TargetRepository
 	OTPRepo        *repositories.OTPRepository
 	OTPAttemptRepo *repositories.OTPAttemptRepository

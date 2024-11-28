@@ -260,7 +260,7 @@ func (s *Service) ValidateOTP(ctx context.Context, email, otp string) error {
 }
 
 func (s *Service) ResetPassword(ctx context.Context, email, newPassword string) error {
-	_, err := s.UserRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+	_, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("email = ?", email)
 	})
 	if err != nil {
@@ -279,7 +279,7 @@ func (s *Service) ResetPassword(ctx context.Context, email, newPassword string) 
 		Password: string(hashedPassword),
 	}
 
-	return s.UserRepo.UpdatesByConditions(ctx, &updatedUser, func(tx *gorm.DB) {
+	return s.userRepo.UpdatesByConditions(ctx, &updatedUser, func(tx *gorm.DB) {
 		tx.Where("email = ?", email)
 	})
 }
