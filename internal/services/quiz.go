@@ -111,9 +111,6 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 	}
 
 	resData.Total = int(total)
-	if request.Sort == "" {
-		request.Sort = "simplified_id.asc"
-	}
 
 	// Preload tagSearches
 	filters = append(filters, func(tx *gorm.DB) {
