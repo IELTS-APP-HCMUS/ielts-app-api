@@ -75,3 +75,7 @@ type QuizSkill struct {
 func (r QuizSkill) TableName() string {
 	return common.POSTGRES_TABLE_NAME_QUIZ_SKILL
 }
+
+type QuizParamsUri struct {
+	QuizID int `uri:"quiz_id" binding:"required"`
+}

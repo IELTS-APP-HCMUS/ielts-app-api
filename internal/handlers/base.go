@@ -36,12 +36,8 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 
 	quizzes := c.Group("/v1/quizzes")
 	{
-		// API Get Quiz Detail
-		// quizzes.GET("/:quiz_id", middleware.OptionalUserAuthentication(), h.GetQuiz())
-
-		// API Get Quiz Answer
-		// quizzes.GET("/answers/:answer_id", middleware.UserAuthentication(), h.GetQuizAnswer())
-
+		//API Get Quiz Detail
+		quizzes.GET("/:quiz_id", middleware.OptionalUserAuthentication(), h.GetQuiz())
 		//API Listing Quiz
 		quizzes.GET("", middleware.OptionalUserAuthentication(), h.GetQuizzes())
 	}
