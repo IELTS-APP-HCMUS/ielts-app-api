@@ -5,8 +5,10 @@ import (
 )
 
 type Service struct {
-	userRepo   *repositories.UserRepository
-	targetRepo *repositories.TargetRepository
+	userRepo      *repositories.UserRepository
+	targetRepo    *repositories.TargetRepository
+	quizRepo      *repositories.QuizRepo
+	quizSkillRepo *repositories.QuizSkillRepo
 }
 
 func NewService(repos ...interface{}) *Service {
@@ -17,7 +19,10 @@ func NewService(repos ...interface{}) *Service {
 			service.userRepo = repo.(*repositories.UserRepository)
 		case *repositories.TargetRepository:
 			service.targetRepo = repo.(*repositories.TargetRepository)
-
+		case *repositories.QuizRepo:
+			service.quizRepo = repo.(*repositories.QuizRepo)
+		case *repositories.QuizSkillRepo:
+			service.quizSkillRepo = repo.(*repositories.QuizSkillRepo)
 		default:
 			panic("Unknown repository type provided")
 		}

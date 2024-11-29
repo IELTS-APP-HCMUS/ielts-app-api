@@ -48,3 +48,30 @@ type Quiz struct {
 func (r Quiz) TableName() string {
 	return common.POSTGRES_TABLE_NAME_QUIZ
 }
+
+type ListQuizzesParamsUri struct {
+	BaseRequestParamsUri
+	Status          *string `form:"status"`
+	Type            *int    `form:"type" validate:"omitempty,min=1"`
+	TagPassage      *int    `form:"tag_passage" validate:"omitempty,min=1"`
+	TagSection      *int    `form:"tag_section" validate:"omitempty,min=1"`
+	TagQuestionType *int    `form:"tag_question_type" validate:"omitempty,min=1"`
+	IsTest          *bool   `form:"is_test"`
+	HasSimplified   *bool   `form:"has_simplified"`
+	Search          *string `form:"search"`
+	Mode            *int    `form:"mode" validate:"omitempty,min=0"`
+	SubmittedStatus int     `form:"submitted_status"`
+	TagTask         *int    `form:"tag_task" validate:"omitempty,min=1"`
+	TagTopic        *int    `form:"tag_topic" validate:"omitempty,min=1"`
+	TagBookType     *int    `form:"tag_book_type" validate:"omitempty,min=1"`
+	WritingTaskType *int    `form:"writing_task_type" validate:"omitempty"`
+}
+
+type QuizSkill struct {
+	ID       int    `json:"id" gorm:"id,primaryKey"`
+	PublicId string `json:"public_id"`
+}
+
+func (r QuizSkill) TableName() string {
+	return common.POSTGRES_TABLE_NAME_QUIZ_SKILL
+}
