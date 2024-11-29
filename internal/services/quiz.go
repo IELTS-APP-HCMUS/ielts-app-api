@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"ielts-app-api/common"
 	"ielts-app-api/internal/models"
 	"ielts-app-api/internal/repositories"
@@ -140,4 +141,33 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 
 	resData.Items = records
 	return &resData, nil
+}
+
+func (s *Service) GetQuiz(ctx context.Context, req *models.QuizParamsUri, userID string) (*models.Quiz, error) {
+	var (
+		quiz *models.Quiz
+		err  error
+	)
+	filters := []repositories.Clause{}
+	filters = append(filters, func(tx *gorm.DB) {
+		tx.Preload("Parts", func(db *gorm.DB) *gorm.DB {
+			return db.Joins("INNER JOIN quiz_part ON quiz_part.quiz_id = ? AND quiz_part.part_id = part.id", req.QuizID).Order("quiz_part.sort")
+		}).Preload("Parts.Questions", func(db *gorm.DB) *gorm.DB {
+			return db.Order("question.sort")
+		}).Where("id", req.QuizID)
+	})
+
+	// Preload vocabs: Milestone 2
+	quiz, err = s.quizRepo.GetDetailByConditions(
+		ctx,
+		filters...,
+	)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, common.ErrRecordNotFound
+		}
+		return nil, err
+	}
+
+	return quiz, nil
 }

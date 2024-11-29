@@ -30,3 +30,30 @@ func (h *Handler) GetQuizzes() gin.HandlerFunc {
 		c.JSON(common.SUCCESS_STATUS, common.ResponseOk(data))
 	}
 }
+
+func (h *Handler) GetQuiz() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var quizParamsUri *models.QuizParamsUri
+		if err := c.ShouldBindUri(&quizParamsUri); err != nil {
+			common.AbortWithError(c, err)
+			return
+		}
+		if err := c.ShouldBindQuery(&quizParamsUri); err != nil {
+			common.AbortWithError(c, err)
+			return
+		}
+		userID := ""
+		ok, userJWTProfile := common.ProfileFromJwt(c)
+		if ok {
+			userID = userJWTProfile.Id
+		}
+
+		data, err := h.service.GetQuiz(c, quizParamsUri, userID)
+		if err != nil {
+			common.AbortWithError(c, err)
+			return
+		}
+
+		c.JSON(common.SUCCESS_STATUS, common.ResponseOk(data))
+	}
+}
