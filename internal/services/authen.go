@@ -19,7 +19,7 @@ var JWTSecret = []byte("your_secret_key")
 
 func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) error {
 
-	_, err := s.UserRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+	_, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("email = ?", req.Email)
 	})
 
@@ -41,7 +41,7 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 			FirstName: &req.FirstName,
 			LastName:  &req.LastName,
 		}
-		user, err := s.UserRepo.Create(ctx, &newUser)
+		user, err := s.userRepo.Create(ctx, &newUser)
 		if err != nil {
 			return err
 		}
@@ -59,7 +59,7 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 			TargetWriting:       -1,
 			NextExamDate:        parsedTime,
 		}
-		_, err = s.TargetRepo.Create(ctx, &newUserTarget)
+		_, err = s.targetRepo.Create(ctx, &newUserTarget)
 		if err != nil {
 			return err
 		}
@@ -78,7 +78,7 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 			return nil, err
 		}
 
-		user, err = s.UserRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		user, err = s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 			tx.Where("email = ? AND provider= ?", googleUser.Email, common.USER_PROVIDER_GOOGLE)
 		})
 		if err != nil {
@@ -91,7 +91,7 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 					Provider:  common.USER_PROVIDER_GOOGLE,
 					IsActive:  true,
 				}
-				user, err = s.UserRepo.Create(ctx, &newUser)
+				user, err = s.userRepo.Create(ctx, &newUser)
 				if err != nil {
 					return nil, err
 				}
@@ -109,7 +109,7 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 					TargetWriting:       -1,
 					NextExamDate:        parsedTime,
 				}
-				_, err = s.TargetRepo.Create(ctx, &newUserTarget)
+				_, err = s.targetRepo.Create(ctx, &newUserTarget)
 				if err != nil {
 					return nil, err
 				}
@@ -118,7 +118,7 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 			}
 		}
 	} else {
-		user, err = s.UserRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		user, err = s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 			tx.Where("email = ?", req.Email)
 		})
 
