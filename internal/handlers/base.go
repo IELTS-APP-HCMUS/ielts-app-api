@@ -46,6 +46,9 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		quizzes.GET("/:quiz_id", middleware.OptionalUserAuthentication(), h.GetQuiz())
 		//API Listing Quiz
 		quizzes.GET("", middleware.OptionalUserAuthentication(), h.GetQuizzes())
+
+		quizzes.POST("/:quiz_iz/answer", middleware.UserAuthentication, h.SubmitAnswer())
+
 	}
 
 	tagSearches := c.Group("/v1/tag-searches")

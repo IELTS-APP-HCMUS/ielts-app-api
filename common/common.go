@@ -32,9 +32,18 @@ const (
 	QUESTION_TYPE_SINGLE_SELECTION  = "SINGLE-SELECTION"
 	QUESTION_TYPE_FILL_IN_THE_BLANK = "FILL-IN-THE-BLANK"
 	QUESTION_TYPE_MULTIPLE          = "MULTIPLE"
+	QUESTION_TYPE_CATEGORY_OTHERS   = "MULTIPLE"
 )
 
 const (
 	FromEmail         = "mainhatnam01@gmail.com"
 	TypeResetPassword = "reset_password"
+)
+
+const (
+	QuizSkillReading      = "READING"
+	QuizSkillListening    = "LISTENING"
+	QuizSkillSpeaking     = "SPEAKING"
+	QuizSkillWriting      = "WRITING"
+	QUIZ_STATUS_PUBLISHED = "published"
 )
