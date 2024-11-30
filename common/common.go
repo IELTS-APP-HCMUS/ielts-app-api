@@ -10,7 +10,7 @@ const (
 	POSTGRES_TABLE_NAME_PART            = "public.part"
 	POSTGRES_TABLE_NAME_QUESTION        = "public.question"
 	POSTGRES_TABLE_NAME_TAG_SEARCH      = "public.tag_search"
-	POSTGRES_TABLE_NAME_TAG_POSITION    = "public.tag_search_position"
+	POSTGRES_TABLE_NAME_TAG_POSITION    = "public.tag_position"
 	POSTGRES_TABLE_NAME_QUIZ_TAG_SEARCH = "public.quiz_tag_search"
 	POSTGRES_TABLE_NAME_QUIZ_SKILL      = "public.type"
 	POSTGRES_TABLE_NAME_QUIZ_PART       = "public.quiz_part"

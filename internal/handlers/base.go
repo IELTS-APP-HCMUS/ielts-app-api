@@ -47,4 +47,11 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		//API Listing Quiz
 		quizzes.GET("", middleware.OptionalUserAuthentication(), h.GetQuizzes())
 	}
+
+	tagSearches := c.Group("/v1/tag-searches")
+	{
+		//API Get Tag Search
+		tagSearches.GET("", h.GetTagSearches())
+	}
+
 }
