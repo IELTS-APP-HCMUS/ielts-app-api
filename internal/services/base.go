@@ -5,13 +5,15 @@ import (
 )
 
 type Service struct {
-	userRepo       *repositories.UserRepository
-	targetRepo     *repositories.TargetRepository
-	quizRepo       *repositories.QuizRepo
-	quizSkillRepo  *repositories.QuizSkillRepo
-	TargetRepo     *repositories.TargetRepository
-	OTPRepo        *repositories.OTPRepository
-	OTPAttemptRepo *repositories.OTPAttemptRepository
+	userRepo              *repositories.UserRepository
+	targetRepo            *repositories.TargetRepository
+	quizRepo              *repositories.QuizRepo
+	quizSkillRepo         *repositories.QuizSkillRepo
+	TargetRepo            *repositories.TargetRepository
+	OTPRepo               *repositories.OTPRepository
+	OTPAttemptRepo        *repositories.OTPAttemptRepository
+	tagSearchRepo         *repositories.TagSearchRepository
+	tagSearchPositionRepo *repositories.TagSearchPositionRepo
 }
 
 func NewService(repos ...interface{}) *Service {
@@ -30,6 +32,10 @@ func NewService(repos ...interface{}) *Service {
 			service.OTPRepo = repo.(*repositories.OTPRepository)
 		case *repositories.OTPAttemptRepository:
 			service.OTPAttemptRepo = repo.(*repositories.OTPAttemptRepository)
+		case *repositories.TagSearchRepository:
+			service.tagSearchRepo = repo.(*repositories.TagSearchRepository)
+		case *repositories.TagSearchPositionRepo:
+			service.tagSearchPositionRepo = repo.(*repositories.TagSearchPositionRepo)
 		default:
 			panic("Unknown repository type provided")
 		}
