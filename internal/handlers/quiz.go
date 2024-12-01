@@ -57,3 +57,32 @@ func (h *Handler) GetQuiz() gin.HandlerFunc {
 		c.JSON(common.SUCCESS_STATUS, common.ResponseOk(data))
 	}
 }
+
+func (h *Handler) SubmitQuiz() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var quizParamsUri *models.QuizParamsUri
+		if err := c.ShouldBindUri(&quizParamsUri); err != nil {
+			common.AbortWithError(c, err)
+			return
+		}
+
+		var body models.QuizAnswer
+		if err := c.ShouldBind(&body); err != nil {
+			common.AbortWithError(c, err)
+			return
+		}
+
+		ok, user := common.ProfileFromJwt(c)
+		if !ok {
+			common.AbortWithError(c, common.ErrNotAuthorized)
+			return
+		}
+
+		answer, err := h.service.SubmitQuizAnswer(c, user.Id, quizParamsUri.QuizID, body)
+		if err != nil {
+			common.AbortWithError(c, err)
+			return
+		}
+		c.JSON(common.SUCCESS_STATUS, common.ResponseOk(answer))
+	}
+}

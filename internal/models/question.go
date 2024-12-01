@@ -39,3 +39,10 @@ type Question struct {
 func (Question) TableName() string {
 	return common.POSTGRES_TABLE_NAME_QUESTION
 }
+
+type QuestionSuccessCount struct {
+	Total   int `json:"total"`
+	Success int `json:"success"`
+	Failed  int `json:"failed"`
+	Skip    int `json:"skip"`
+}

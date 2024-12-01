@@ -1,19 +1,21 @@
 package common
 
 const (
-	POSTGRES_TABLE_NAME_USERS           = "public.users"
-	POSTGRES_TABLE_NAME_ROLES           = "public.roles"
-	POSTGRES_TABLE_NAME_TARGETS         = "public.student_target"
-	POSTGRES_TABLE_NAME_OTPS            = "public.otps"
-	POSTGRES_TABLE_NAME_OTP_ATTEMPTS    = "public.otp_attempts"
-	POSTGRES_TABLE_NAME_QUIZ            = "public.quiz"
-	POSTGRES_TABLE_NAME_PART            = "public.part"
-	POSTGRES_TABLE_NAME_QUESTION        = "public.question"
-	POSTGRES_TABLE_NAME_TAG_SEARCH      = "public.tag_search"
-	POSTGRES_TABLE_NAME_TAG_POSITION    = "public.tag_position"
-	POSTGRES_TABLE_NAME_QUIZ_TAG_SEARCH = "public.quiz_tag_search"
-	POSTGRES_TABLE_NAME_QUIZ_SKILL      = "public.type"
-	POSTGRES_TABLE_NAME_QUIZ_PART       = "public.quiz_part"
+	POSTGRES_TABLE_NAME_USERS            = "public.users"
+	POSTGRES_TABLE_NAME_ROLES            = "public.roles"
+	POSTGRES_TABLE_NAME_TARGETS          = "public.student_target"
+	POSTGRES_TABLE_NAME_OTPS             = "public.otps"
+	POSTGRES_TABLE_NAME_OTP_ATTEMPTS     = "public.otp_attempts"
+	POSTGRES_TABLE_NAME_QUIZ             = "public.quiz"
+	POSTGRES_TABLE_NAME_PART             = "public.part"
+	POSTGRES_TABLE_NAME_QUESTION         = "public.question"
+	POSTGRES_TABLE_NAME_TAG_SEARCH       = "public.tag_search"
+	POSTGRES_TABLE_NAME_TAG_POSITION     = "public.tag_position"
+	POSTGRES_TABLE_NAME_QUIZ_TAG_SEARCH  = "public.quiz_tag_search"
+	POSTGRES_TABLE_NAME_QUIZ_SKILL       = "public.type"
+	POSTGRES_TABLE_NAME_QUIZ_PART        = "public.quiz_part"
+	POSTGRES_TABLE_NAME_ANSWER           = "public.answers"
+	POSTGRES_TABLE_NAME_SUCCESS_QUIZ_LOG = "public.success_quiz_log"
 )
 
 // Define New Const variable here for each service
@@ -30,9 +32,18 @@ const (
 	QUESTION_TYPE_SINGLE_SELECTION  = "SINGLE-SELECTION"
 	QUESTION_TYPE_FILL_IN_THE_BLANK = "FILL-IN-THE-BLANK"
 	QUESTION_TYPE_MULTIPLE          = "MULTIPLE"
+	QUESTION_TYPE_CATEGORY_OTHERS   = "MULTIPLE"
 )
 
 const (
 	FromEmail         = "mainhatnam01@gmail.com"
 	TypeResetPassword = "reset_password"
+)
+
+const (
+	QuizSkillReading      = "READING"
+	QuizSkillListening    = "LISTENING"
+	QuizSkillSpeaking     = "SPEAKING"
+	QuizSkillWriting      = "WRITING"
+	QUIZ_STATUS_PUBLISHED = "published"
 )

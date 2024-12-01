@@ -14,6 +14,8 @@ type Service struct {
 	OTPAttemptRepo        *repositories.OTPAttemptRepository
 	tagSearchRepo         *repositories.TagSearchRepository
 	tagSearchPositionRepo *repositories.TagSearchPositionRepo
+	answerRepo            *repositories.AnswerRepo
+	successQuizLogRepo    *repositories.SuccessQuizLogRepo
 }
 
 func NewService(repos ...interface{}) *Service {
@@ -36,6 +38,10 @@ func NewService(repos ...interface{}) *Service {
 			service.tagSearchRepo = repo.(*repositories.TagSearchRepository)
 		case *repositories.TagSearchPositionRepo:
 			service.tagSearchPositionRepo = repo.(*repositories.TagSearchPositionRepo)
+		case *repositories.AnswerRepo:
+			service.answerRepo = repo.(*repositories.AnswerRepo)
+		case *repositories.SuccessQuizLogRepo:
+			service.successQuizLogRepo = repo.(*repositories.SuccessQuizLogRepo)
 		default:
 			panic("Unknown repository type provided")
 		}

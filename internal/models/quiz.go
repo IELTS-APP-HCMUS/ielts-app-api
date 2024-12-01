@@ -79,3 +79,18 @@ func (r QuizSkill) TableName() string {
 type QuizParamsUri struct {
 	QuizID int `uri:"quiz_id" binding:"required"`
 }
+
+type QuizAnswer struct {
+	QuestionResult []QuestionResult `json:"question"`
+	Answer         *Answer          `json:"answer"`
+}
+
+type QuizResult struct {
+	SuccessCount int `json:"success_count"`
+	Total        int `json:"total"`
+}
+
+type QuestionResult struct {
+	Id int `json:"id"`
+	QuizResult
+}
