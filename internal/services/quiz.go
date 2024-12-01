@@ -104,6 +104,44 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 		}
 	}
 
+	// Handle information with log-in student
+	var (
+		quizSubmittedIDs = []int{}
+		quizSubmittedMap = make(map[int]bool)
+	)
+
+	if len(userID) > 0 {
+		filterQuizIDsSubmitted := func(tx *gorm.DB) {
+			if len(quizIDs) > 0 {
+				tx.Select("distinct quiz").Where("user_created = ? and quiz IN ?", userID, quizIDs)
+			} else {
+				tx.Select("distinct quiz").Where("user_created = ?", userID)
+			}
+		}
+
+		answers, err := s.answerRepo.List(ctx, models.QueryParams{}, filterQuizIDsSubmitted)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, answer := range answers {
+			quizSubmittedMap[answer.Quiz] = true
+			quizSubmittedIDs = append(quizSubmittedIDs, answer.Quiz)
+		}
+
+		if request.SubmittedStatus == common.QuizSubmittedStatusYes {
+			filters = append(filters, func(tx *gorm.DB) {
+				tx.Where("quiz.id IN ?", quizSubmittedIDs)
+			})
+		} else if request.SubmittedStatus == common.QuizSubmittedStatusNo {
+			if len(quizSubmittedIDs) > 0 {
+				filters = append(filters, func(tx *gorm.DB) {
+					tx.Where("quiz.id NOT IN ?", quizSubmittedIDs)
+				})
+			}
+		}
+	}
+
 	total, err := s.quizRepo.Count(ctx, models.QueryParams{}, filters...)
 	if err != nil {
 		return nil, err

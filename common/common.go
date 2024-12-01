@@ -47,3 +47,9 @@ const (
 	QuizSkillWriting      = "WRITING"
 	QUIZ_STATUS_PUBLISHED = "published"
 )
+
+const (
+	QuizSubmittedStatusUnknown = 0
+	QuizSubmittedStatusYes     = 1
+	QuizSubmittedStatusNo      = 2
+)
