@@ -14,7 +14,7 @@ const (
 	POSTGRES_TABLE_NAME_QUIZ_TAG_SEARCH  = "public.quiz_tag_search"
 	POSTGRES_TABLE_NAME_QUIZ_SKILL       = "public.type"
 	POSTGRES_TABLE_NAME_QUIZ_PART        = "public.quiz_part"
-	POSTGRES_TABLE_NAME_ANSWER           = "public.answer"
+	POSTGRES_TABLE_NAME_ANSWER           = "public.answers"
 	POSTGRES_TABLE_NAME_SUCCESS_QUIZ_LOG = "public.success_quiz_log"
 )
 

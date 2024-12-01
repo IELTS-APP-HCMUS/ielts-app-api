@@ -34,9 +34,7 @@ type Answer struct {
 	Note              datatypes.JSON    `json:"note" gorm:"note"`
 	QuizType          int               `json:"quiz_type"`
 	CompletedDuration int               `json:"completed_duration"`
-	BandScore         *float32          `json:"band_score"`
 	Questions         []*Question       `json:"questions" gorm:"-"`
-	Review            *int              `json:"review"`
 	UserUpdated       *string           `json:"user_updated"`
 	DateUpdated       *time.Time        `json:"date_updated"`
 	Student           *User             `json:"student" gorm:"-"`

@@ -47,7 +47,7 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		//API Listing Quiz
 		quizzes.GET("", middleware.OptionalUserAuthentication(), h.GetQuizzes())
 
-		quizzes.POST("/:quiz_iz/answer", middleware.UserAuthentication, h.SubmitAnswer())
+		quizzes.POST("/:quiz_id/answer", middleware.UserAuthentication, h.SubmitQuiz())
 
 	}
 

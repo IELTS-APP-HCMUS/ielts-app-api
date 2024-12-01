@@ -23,6 +23,7 @@ var (
 	ErrEmailNotFound                 = errors.New("email not found")
 	ErrRecordNotFound                = errors.New("record not found")
 	ErrNotAuthorized                 = errors.New("not authorized")
+	ErrQuizNotFound                  = errors.New("quiz not found")
 )
 
 var listErrorData = []errData{
