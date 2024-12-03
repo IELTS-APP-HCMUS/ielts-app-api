@@ -57,4 +57,9 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		tagSearches.GET("", h.GetTagSearches())
 	}
 
+	answerRoutes := c.Group("/api/answers")
+	{
+		answerRoutes.GET("/:answer_id", middleware.UserAuthentication, h.GetAnswer)
+		answerRoutes.GET("/statistics", middleware.UserAuthentication, h.GetAnswerStatistic)
+	}
 }
