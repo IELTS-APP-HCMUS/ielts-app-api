@@ -12,45 +12,24 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	defaultLimit    = 20
-	defaultPage     = 1
-	defaultPageSize = 10
-	maxLimit        = 200
-)
-
-// GetPageAndPageSize validates and returns page size and limit
-func GetPageAndPageSize(page, pageSize int) (int, int) {
-	if page == 0 {
-		page = defaultPage
-	}
-	if pageSize == 0 {
-		pageSize = defaultPageSize
-	}
-	if pageSize > maxLimit {
-		pageSize = maxLimit
-	}
-	return page, pageSize
-}
-
 func (s *Service) GetAnswer(ctx context.Context, userID string, answerID int) (*models.Answer, error) {
 	// Get detail answer
 	conds := []repositories.Clause{
 		func(tx *gorm.DB) {
 			tx.Where("id", answerID)
 		},
-		func(tx *gorm.DB) {
-			ps := []common.Preload{
-				{
-					Model:    "QuizDetail",
-					Selected: []string{"id", "title"},
-				},
-			}
+		// func(tx *gorm.DB) {
+		// 	ps := []common.Preload{
+		// 		{
+		// 			Model:    "QuizDetail",
+		// 			Selected: []string{"id", "title"},
+		// 		},
+		// 	}
 
-			for _, p := range ps {
-				common.ApplyPreload(tx, p)
-			}
-		},
+		// 	for _, p := range ps {
+		// 		common.ApplyPreload(tx, p)
+		// 	}
+		// },
 	}
 
 	answer, err := s.answerRepo.GetDetailByConditions(ctx, conds...)
@@ -60,19 +39,6 @@ func (s *Service) GetAnswer(ctx context.Context, userID string, answerID int) (*
 		}
 		return nil, err
 	}
-
-	// isTeacher := false
-	// if answer.UserCreated != userID {
-	// 	isPermission, err := s.checkTeacherPermissionOnAnswer(ctx, userID, answer, answerID)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-
-	// 	if !isPermission {
-	// 		return nil, common.ErrActionNotAllowed
-	// 	}
-	// 	isTeacher = true
-	// }
 
 	// get student info
 	student, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
@@ -94,19 +60,6 @@ func (s *Service) GetAnswerStatistic(ctx context.Context, studentID string, requ
 		err                         error
 	)
 
-	quizTypes := []int{common.QuizTypeTest, common.QuizTypeMockTest}
-	if request.QuizTypes != nil && len(*request.QuizTypes) > 0 {
-		quizTypes = *request.QuizTypes
-	}
-	if len(quizTypes) == 1 {
-		filters = append(filters, func(tx *gorm.DB) {
-			tx.Where("quiz_type = ?", quizTypes[0])
-		})
-	} else {
-		filters = append(filters, func(tx *gorm.DB) {
-			tx.Where("quiz_type IN ?", quizTypes)
-		})
-	}
 	if request.StartedAt.IsZero() && request.EndedAt.IsZero() {
 		request.EndedAt = time.Now()
 		request.StartedAt = request.EndedAt.AddDate(0, 0, -365)
@@ -148,24 +101,7 @@ func (s *Service) GetAnswerStatistic(ctx context.Context, studentID string, requ
 			tx.Where("date_created >= ? and date_created <= ?", request.StartedAt, request.EndedAt)
 		})
 
-		if request.MockTestIDs != nil && len(*request.MockTestIDs) > 0 {
-			quizzes, errQ := s.quizRepo.List(ctx, models.QueryParams{}, []repositories.Clause{
-				func(tx *gorm.DB) {
-					tx.Select("id").Where("mock_test_id IN ?", *request.MockTestIDs)
-				},
-			}...)
-			if errQ != nil {
-				return nil, errQ
-			}
-			quizIDs := []int{}
-			for _, q := range quizzes {
-				quizIDs = append(quizIDs, q.ID)
-			}
-			filters = append(filters, func(tx *gorm.DB) {
-				tx.Where("quiz IN ?", quizIDs)
-			})
-		}
-		page, pageSize := GetPageAndPageSize(request.Page, request.PageSize)
+		page, pageSize := common.GetPageAndPageSize(request.Page, request.PageSize)
 		total, err := s.answerRepo.Count(ctx, models.QueryParams{}, filters...)
 		if err != nil {
 			return nil, err
@@ -181,39 +117,9 @@ func (s *Service) GetAnswerStatistic(ctx context.Context, studentID string, requ
 			return &resData, nil
 		}
 
-		// default sort: new -> old
-		// if request.SkillId != common.QuizSkillTypeWritingSelfPractice2 {
-		// 	filters = append(filters, func(tx *gorm.DB) {
-		// 		tx.Preload("SuccessQuizLog", func(tx *gorm.DB) *gorm.DB {
-		// 			return tx.Select(
-		// 				mappingType[*request.Type],
-		// 				"sum(total) as total",
-		// 				"sum(success) as success",
-		// 				"sum(failed) as failed",
-		// 				"sum(skipped) as skipped",
-		// 			).Where(mappingType[*request.Type] + " IS NOT NULL AND question_type !=''").Group(mappingType[*request.Type])
-		// 		}).Preload("QuizDetail")
-		// 	})
-		// }
-
 		if len(request.Sort) == 0 {
 			request.Sort = "date_created.desc"
 		}
-
-		// var validTagSearchIDs []int
-
-		// if request.SkillId == common.QuizSkillTypeWritingSelfPractice2 {
-		// 	validTagSearchIDs, err = s.tagSearchRepo.FetchValidTagSearchIDs()
-		// 	if err != nil {
-		// 		return err, nil
-		// 	}
-		// 	filters = append(filters, func(tx *gorm.DB) {
-		// 		tx.Preload("QuizDetail.TagSearches", func(tx *gorm.DB) *gorm.DB {
-		// 			return tx.Where("tag_search.id IN ?", validTagSearchIDs).
-		// 				Select("tag_search.id, tag_search.title")
-		// 		}).Preload("QuizDetail")
-		// 	})
-		// }
 
 		statisticsByQuiz, err = s.answerRepo.Statistic.List(ctx, models.QueryParams{
 			Limit:  pageSize,
@@ -222,19 +128,6 @@ func (s *Service) GetAnswerStatistic(ctx context.Context, studentID string, requ
 				Origin: request.Sort,
 			},
 		}, filters...)
-
-		// for i, quiz := range statisticsByQuiz {
-		// 	// if quiz.Type == common.QuizSkillTypeWritingSelfPractice2 {
-		// 	// 	for _, tag := range quiz.QuizDetail.TagSearches {
-		// 	// 		if common.Contains(validTagSearchIDs, tag.ID) {
-		// 	// 			statisticsByQuiz[i].QuizTopicFormat = tag.Title
-		// 	// 			break
-		// 	// 		}
-		// 	// 	}
-		// 	// }
-		// 	// pass
-
-		// }
 
 		if err != nil {
 			return nil, err

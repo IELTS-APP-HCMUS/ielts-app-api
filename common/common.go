@@ -60,8 +60,4 @@ const (
 	QuizTypeExercise           = 1
 	QuizTypeAssignment         = 2
 	QuizTypeTest               = 3
-	QuizTypeMockTest           = 4
-	VocabLevelWord             = 3
-	VocabLevelSentence         = 2
-	VocalLevelParagraph        = 1
 )
