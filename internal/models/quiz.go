@@ -61,10 +61,8 @@ type ListQuizzesParamsUri struct {
 	Search          *string `form:"search"`
 	Mode            *int    `form:"mode" validate:"omitempty,min=0"`
 	SubmittedStatus int     `form:"submitted_status"`
-	TagTask         *int    `form:"tag_task" validate:"omitempty,min=1"`
 	TagTopic        *int    `form:"tag_topic" validate:"omitempty,min=1"`
 	TagBookType     *int    `form:"tag_book_type" validate:"omitempty,min=1"`
-	WritingTaskType *int    `form:"writing_task_type" validate:"omitempty"`
 }
 
 type QuizSkill struct {
@@ -93,4 +91,19 @@ type QuizResult struct {
 type QuestionResult struct {
 	Id int `json:"id"`
 	QuizResult
+}
+
+type QuizDetail struct {
+	QuizID             int    `json:"quiz_id"`
+	QuizName           string `json:"quiz_name"`
+	QuizCreatedAt      string `json:"quiz_created_at"`
+	PartID             int    `json:"part_id"`
+	PartQuiz           int    `json:"part_quiz"`
+	PartPassage        string `json:"part_passage"`
+	QuestionID         int    `json:"question_id"`
+	QuestionPart       int    `json:"question_part"`
+	QuestionType       string `json:"question_type"`
+	QuestionTypeDetail string `json:"question_type_detail"`
+	IsMultipleChoice   bool   `json:"is_multiple_choice"`
+	IsGapFillInBlank   bool   `json:"is_gap_fill_in_blank"`
 }

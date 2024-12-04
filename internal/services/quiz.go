@@ -30,7 +30,6 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 	if request.TagPassage != nil ||
 		request.TagSection != nil ||
 		request.TagQuestionType != nil ||
-		request.TagTask != nil ||
 		request.TagTopic != nil ||
 		request.TagBookType != nil {
 
@@ -43,10 +42,6 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 		}
 		if request.TagQuestionType != nil {
 			tagIDs = append(tagIDs, *request.TagQuestionType)
-		}
-
-		if request.TagTask != nil {
-			tagIDs = append(tagIDs, *request.TagTask)
 		}
 
 		if request.TagTopic != nil {
@@ -249,14 +244,24 @@ func (s *Service) submitReadingListening(ctx context.Context, userId string, qui
 	// get quiz -> part -> question
 	var clauses []repositories.Clause
 	clauses = append(clauses, func(tx *gorm.DB) {
-		tx.Preload("Parts", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id, quiz, passage")
-		}).Preload("Parts.Questions", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id, part, question_type, type, multiple_choice, gap_fill_in_blank")
-		}).Where("id", quizId)
+		// tx.Preload("Parts", func(db *gorm.DB) *gorm.DB {
+		// 	return db.Select("id, quiz, passage")
+		// }).Preload("Parts.Questions", func(db *gorm.DB) *gorm.DB {
+		// 	return db.Select("id, part, question_type, type, multiple_choice, gap_fill_in_blank")
+		// }).Where("id", quizId)
+		tx.Select(`
+       	quiz.*,
+		part.id, part.quiz, part.passage,
+		question.id, question.part, question.question_type, question.type, question.multiple_choice, question.gap_fill_in_blank
+    `).
+			Joins("LEFT JOIN public.part ON quiz.id = part.quiz").
+			Joins("LEFT JOIN public.question ON part.id = question.part").
+			Where("quiz.id = ?", quizId).
+			Order("quiz.id")
+
 	})
 
-	quiz, err := s.quizRepo.GetDetailByConditions(ctx, clauses...)
+	quiz, err := s.quizRepo.GetQuizDetailByConditions(ctx, quizId)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil, err
@@ -326,6 +331,11 @@ func (s *Service) submitReadingListening(ctx context.Context, userId string, qui
 }
 
 func (s *Service) countAnswerStatistic(ctx context.Context, quiz *models.Quiz, correction []models.QuestionResult) (questionTypeSuccessCount map[string]models.QuestionSuccessCount, passageSuccessCount map[int]models.QuestionSuccessCount, err error) {
+	for i, v := range correction {
+		fmt.Println(i, v)
+	}
+
+	fmt.Println("Quiz: ", quiz)
 	quizCfg, err := s.quizRepo.List(ctx, models.QueryParams{}, func(tx *gorm.DB) {
 		tx.Select("id", "type").Where("id", quiz.ID).Where("status", common.QUIZ_STATUS_PUBLISHED)
 	})
@@ -343,7 +353,9 @@ func (s *Service) countAnswerStatistic(ctx context.Context, quiz *models.Quiz, c
 
 	for _, part := range quiz.Parts {
 		for _, question := range part.Questions {
+			fmt.Printf("Question: %+v\n", question)
 			subQuestionCount := question.CountTotalSubQuestion()
+			fmt.Println("sub", subQuestionCount)
 			if part.Passage != 0 {
 				val, ok := passageSuccessCount[part.Passage]
 				if !ok {
@@ -354,6 +366,7 @@ func (s *Service) countAnswerStatistic(ctx context.Context, quiz *models.Quiz, c
 				}
 
 				result, ok := resultObject[question.ID]
+				fmt.Println("Stats:  ", subQuestionCount, result.Total, result.SuccessCount)
 				if ok {
 					val.Total += subQuestionCount
 					val.Success += result.SuccessCount

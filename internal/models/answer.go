@@ -66,7 +66,6 @@ type AnswerStatistic struct {
 	Class             *int            `json:"class_id" gorm:"class"`
 	Type              int             `json:"type" gorm:"type"`
 	BandScore         *float32        `json:"band_score"`
-	WritingTaskType   *int            `json:"writing_task_type"`
 }
 
 type AnswerStatistics []*AnswerStatistic
