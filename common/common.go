@@ -49,7 +49,15 @@ const (
 )
 
 const (
+	AnswerStatisticByQuiz       = 1
+	AnswerStatisticQuestionType = 2
+	AnswerStatisticByPassage    = 3
+
 	QuizSubmittedStatusUnknown = 0
 	QuizSubmittedStatusYes     = 1
 	QuizSubmittedStatusNo      = 2
+	QuizTypeUnknown            = 0
+	QuizTypeExercise           = 1
+	QuizTypeAssignment         = 2
+	QuizTypeTest               = 3
 )

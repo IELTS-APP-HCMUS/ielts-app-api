@@ -24,6 +24,7 @@ var (
 	ErrRecordNotFound                = errors.New("record not found")
 	ErrNotAuthorized                 = errors.New("not authorized")
 	ErrQuizNotFound                  = errors.New("quiz not found")
+	ErrAnswerStatisticTypeRequired   = errors.New("answer_statistic_type_required")
 )
 
 var listErrorData = []errData{
