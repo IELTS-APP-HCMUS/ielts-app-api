@@ -38,7 +38,20 @@ func main() {
 	// Initialize the repository and service. Add more repo and service evrytime you create a new API
 	userRepo := repositories.NewUserRepository(db)
 	targetRepo := repositories.NewTargetRepository(db)
-	service := services.NewService(userRepo, targetRepo)
+	quizRepo := repositories.NewQuizRepository(db)
+	quizSkillRepo := repositories.NewQuizSkillRepository(db)
+	otpRepo := repositories.NewOTPRepository(db)
+	otpAttemptRepo := repositories.NewOTPAttemptRepository(db)
+	tagSearchRepo := repositories.NewTagSearchRepository(db)
+	tagSearchPositionRepo := repositories.NewTagSearchPositionRepo(db)
+	answerRepo := repositories.NewAnswerRepository(db)
+	successQuizLogRepo := repositories.NewSuccessQuizLogRepository(db)
+
+	service := services.NewService(userRepo, targetRepo,
+		otpRepo, otpAttemptRepo,
+		quizRepo, quizSkillRepo,
+		tagSearchRepo, tagSearchPositionRepo,
+		answerRepo, successQuizLogRepo)
 
 	// Initialize the Gin router and register routes. Do not edit this part
 	router := gin.Default()
@@ -47,4 +60,5 @@ func main() {
 
 	// Start the server
 	router.Run("0.0.0.0:" + fmt.Sprintf("%d", 8080))
+
 }
