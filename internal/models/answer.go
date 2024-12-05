@@ -58,7 +58,7 @@ type AnswerStatistic struct {
 	QuizType          int       `json:"quiz_type"`
 	QuizTitle         string    `json:"quiz_title,omitempty" gorm:"-"`
 	QuizTopicFormat   string    `json:"topic_format,omitempty" gorm:"-"`
-	SuccessCount      `json:",squash" gorm:"-"`
+	SuccessCount      `json:"" gorm:"-"`
 	SuccessQuizLog    *SuccessQuizLog `json:"-" gorm:"foreignKey:AnswerId"`
 	CompletedDuration *int            `json:"completed_duration"`
 	QuizDetail        *Quiz           `json:"-" gorm:"foreignKey:QuizID"`

@@ -18,18 +18,18 @@ func (s *Service) GetAnswer(ctx context.Context, userID string, answerID int) (*
 		func(tx *gorm.DB) {
 			tx.Where("id", answerID)
 		},
-		// func(tx *gorm.DB) {
-		// 	ps := []common.Preload{
-		// 		{
-		// 			Model:    "QuizDetail",
-		// 			Selected: []string{"id", "title"},
-		// 		},
-		// 	}
+		func(tx *gorm.DB) {
+			ps := []common.Preload{
+				{
+					Model:    "QuizDetail",
+					Selected: []string{"id", "title"},
+				},
+			}
 
-		// 	for _, p := range ps {
-		// 		common.ApplyPreload(tx, p)
-		// 	}
-		// },
+			for _, p := range ps {
+				common.ApplyPreload(tx, p)
+			}
+		},
 	}
 
 	answer, err := s.answerRepo.GetDetailByConditions(ctx, conds...)
@@ -120,6 +120,18 @@ func (s *Service) GetAnswerStatistic(ctx context.Context, studentID string, requ
 		if len(request.Sort) == 0 {
 			request.Sort = "date_created.desc"
 		}
+
+		filters = append(filters, func(tx *gorm.DB) {
+			tx.Preload("SuccessQuizLog", func(tx *gorm.DB) *gorm.DB {
+				return tx.Select(
+					mappingType[*request.Type],
+					"sum(total) as total",
+					"sum(success) as success",
+					"sum(failed) as failed",
+					"sum(skipped) as skipped",
+				).Where(mappingType[*request.Type] + " IS NOT NULL AND question_type !=''").Group(mappingType[*request.Type])
+			}).Preload("QuizDetail")
+		})
 
 		statisticsByQuiz, err = s.answerRepo.Statistic.List(ctx, models.QueryParams{
 			Limit:  pageSize,

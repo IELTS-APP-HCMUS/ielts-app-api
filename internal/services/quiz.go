@@ -213,7 +213,6 @@ func (s *Service) SubmitQuizAnswer(ctx context.Context, userId string, quizId in
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Flag 4", q.Type)
 
 	t, err := s.quizSkillRepo.GetByID(ctx, q.Type)
 	if err != nil {
@@ -223,7 +222,6 @@ func (s *Service) SubmitQuizAnswer(ctx context.Context, userId string, quizId in
 	results.Answer.QuizType = q.QuizType
 
 	if t.PublicId == common.QuizSkillReading {
-		fmt.Println("Flag 5", q.Type)
 		answer, _, err = s.submitReadingListening(ctx, userId, quizId, results)
 		if err != nil {
 			return nil, err
@@ -241,27 +239,8 @@ func (s *Service) submitReadingListening(ctx context.Context, userId string, qui
 		return nil, nil, err
 	}
 
-	// get quiz -> part -> question
-	var clauses []repositories.Clause
-	clauses = append(clauses, func(tx *gorm.DB) {
-		// tx.Preload("Parts", func(db *gorm.DB) *gorm.DB {
-		// 	return db.Select("id, quiz, passage")
-		// }).Preload("Parts.Questions", func(db *gorm.DB) *gorm.DB {
-		// 	return db.Select("id, part, question_type, type, multiple_choice, gap_fill_in_blank")
-		// }).Where("id", quizId)
-		tx.Select(`
-       	quiz.*,
-		part.id, part.quiz, part.passage,
-		question.id, question.part, question.question_type, question.type, question.multiple_choice, question.gap_fill_in_blank
-    `).
-			Joins("LEFT JOIN public.part ON quiz.id = part.quiz").
-			Joins("LEFT JOIN public.question ON part.id = question.part").
-			Where("quiz.id = ?", quizId).
-			Order("quiz.id")
+	quiz, err := s.quizRepo.GetQuizSubmitted(ctx, quizId)
 
-	})
-
-	quiz, err := s.quizRepo.GetQuizDetailByConditions(ctx, quizId)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil, err
@@ -335,7 +314,6 @@ func (s *Service) countAnswerStatistic(ctx context.Context, quiz *models.Quiz, c
 		fmt.Println(i, v)
 	}
 
-	fmt.Println("Quiz: ", quiz)
 	quizCfg, err := s.quizRepo.List(ctx, models.QueryParams{}, func(tx *gorm.DB) {
 		tx.Select("id", "type").Where("id", quiz.ID).Where("status", common.QUIZ_STATUS_PUBLISHED)
 	})
@@ -353,9 +331,7 @@ func (s *Service) countAnswerStatistic(ctx context.Context, quiz *models.Quiz, c
 
 	for _, part := range quiz.Parts {
 		for _, question := range part.Questions {
-			fmt.Printf("Question: %+v\n", question)
 			subQuestionCount := question.CountTotalSubQuestion()
-			fmt.Println("sub", subQuestionCount)
 			if part.Passage != 0 {
 				val, ok := passageSuccessCount[part.Passage]
 				if !ok {
@@ -366,7 +342,6 @@ func (s *Service) countAnswerStatistic(ctx context.Context, quiz *models.Quiz, c
 				}
 
 				result, ok := resultObject[question.ID]
-				fmt.Println("Stats:  ", subQuestionCount, result.Total, result.SuccessCount)
 				if ok {
 					val.Total += subQuestionCount
 					val.Success += result.SuccessCount
