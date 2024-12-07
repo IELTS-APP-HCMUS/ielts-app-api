@@ -172,6 +172,8 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 	quizIDs = []int{}
 	for _, record := range records {
 		quizIDs = append(quizIDs, record.ID)
+		_, submitted := quizSubmittedMap[record.ID]
+		record.IsSubmitted = &submitted
 	}
 
 	resData.Items = records
