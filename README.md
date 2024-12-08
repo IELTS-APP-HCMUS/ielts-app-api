@@ -34,7 +34,7 @@
   3. **Footer của trang**: Chứa thông tin liên lạc và các thông tin liên quan đến bản quyền app.
 
 ## CÁC CHỨC NĂNG MÀ NHÓM ĐÃ HOÀN THIỆN TRONG MILESTONE 1
-- Với chức năng đăng nhập/đăng ký: App đã có thể đăng nhập qua email + password, remember me, đăng nhập qua google, đăng ký tài khoản thông thường
+- Với chức năng đăng nhập/đăng ký: App đã có thể đăng nhập qua email + password, remember me, đăng nhập qua google, đăng ký tài khoản thông thường.
 - Với màn hình homepage: Hiện tại các mục đều đã hoàn thiện cơ bản nhưng vẫn còn 1 số lỗi được đề cập trong phần "CÁC CHỨC NĂNG CHƯA HOÀN THIỆN VÀ CÒN LỖI TRONG MILESTONE 1".
 - Với màn hình AboutUs: Hiện tại các mục đều đã hoàn thiện cơ bản nhưng vẫn còn 1 số lỗi được đề cập trong phần "CÁC CHỨC NĂNG CHƯA HOÀN THIỆN VÀ CÒN LỖI TRONG MILESTONE 1".
 

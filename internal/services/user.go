@@ -8,7 +8,7 @@ import (
 )
 
 func (s *Service) GetUserProfileById(ctx context.Context, id string) (*models.User, error) {
-	user, err := s.UserRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+	user, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Preload("Role").Where("id = ?", id)
 	})
 	if err != nil {
