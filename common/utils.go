@@ -185,7 +185,7 @@ func NormalizeToBangkokTimezone(t time.Time) (time.Time, error) {
 const (
 	defaultLimit    = 20
 	defaultPage     = 1
-	defaultPageSize = 10
+	defaultPageSize = 20
 	maxLimit        = 200
 )
 

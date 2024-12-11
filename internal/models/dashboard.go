@@ -49,6 +49,7 @@ type AnswerStatisticsQuery struct {
 	Type            *int      `form:"type"`
 	StartedAt       time.Time `form:"started_at"`
 	EndedAt         time.Time `form:"ended_at"`
+	Today           bool      `form:"today"`
 	Sort            string    `form:"sort"`
 	QuizTypes       *[]int    `form:"quiz_types"`
 	MockTestIDs     *[]int    `form:"mock_test_ids"`
