@@ -19,12 +19,14 @@ func (s *Service) GetVocabById(ctx context.Context, userId string) (vocab *model
 
 func (s *Service) CreateVocab(ctx context.Context, userId string, body models.VocabRequest) (*models.Vocab, error) {
 	vocab := &models.Vocab{
-		Value:     body.Value,
-		WordClass: body.WordClass,
-		Meaning:   body.Meaning,
-		IPA:       body.IPA,
-		Example:   body.Example,
-		UserId:    userId,
+		Value:           body.Value,
+		WordClass:       body.WordClass,
+		Meaning:         body.Meaning,
+		IPA:             body.IPA,
+		Example:         body.Example,
+		Explanation:     body.Explanation,
+		IsLearnedStatus: body.IsLearnedStatus,
+		UserId:          userId,
 	}
 
 	vocab, err := s.vocabRepo.Create(ctx, vocab)
