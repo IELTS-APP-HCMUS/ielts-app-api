@@ -65,6 +65,7 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 
 	vocab := c.Group("/v1/vocabs")
 	{
+		vocab.GET("", middleware.UserAuthentication, h.GetVocab)
 		vocab.POST("", middleware.UserAuthentication, h.CreateVocab)
 	}
 }

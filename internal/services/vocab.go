@@ -3,29 +3,19 @@ package services
 import (
 	"context"
 	"ielts-app-api/internal/models"
+
+	"gorm.io/gorm"
 )
 
-// func (s *Service) GetVocab(ctx context.Context, query models.GetVocabQuery) (vocab *models.Vocab, err error) {
-// 	filter := []repositories.Clause{
-// 		func(db *gorm.DB) {
-// 			db.Joins("LEFT JOIN vocab_linking vl ON vocab.id = vl.vocab_id")
-// 			db.Where("parent_id = ?", query.ParentID)
-// 			db.Where("word_display = ?", query.Word)
-// 		},
-// 	}
-// 	vocab, err = s.vocabRepo.GetDetailByConditions(ctx, filter...)
-// 	if err != nil {
-// 		return
-// 	}
-// 	if query.ParentID != nil {
-// 		parent, errP := s.vocabRepo.GetByID(ctx, query.ParentID)
-// 		if errP != nil {
-// 			return nil, errP
-// 		}
-// 		vocab.Parent = parent
-// 	}
-// 	return
-// }
+func (s *Service) GetVocabById(ctx context.Context, userId string) (vocab *models.Vocab, err error) {
+	vocab_bank, err := s.vocabRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("user_id = ?", userId)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vocab_bank, nil
+}
 
 func (s *Service) CreateVocab(ctx context.Context, userId string, body models.VocabRequest) (*models.Vocab, error) {
 	vocab := &models.Vocab{

@@ -15,7 +15,7 @@ type VocabRequest struct {
 }
 
 type Vocab struct {
-	ID              int    `json:"id" gorm:"id,primaryKey"`
+	ID              int    `json:"id" gorm:"id,primaryKey;autoIncrement"`
 	Value           string `json:"value"`
 	WordClass       string `json:"word_class,omitempty"`
 	Meaning         string `json:"meaning,omitempty"`

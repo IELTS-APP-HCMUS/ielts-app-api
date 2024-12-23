@@ -7,19 +7,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// func (h *Handler) GetTarget(c *gin.Context) {
-// 	ok, userJWTProfile := common.ProfileFromJwt(c)
-// 	if !ok {
-// 		common.AbortWithError(c, common.ErrUserNotFound)
-// 		return
-// 	}
-// 	data, err := h.service.GetTargetById(c, userJWTProfile.Id)
-// 	if err != nil {
-// 		common.AbortWithError(c, err)
-// 		return
-// 	}
-// 	c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Get target successfully", data))
-// }
+func (h *Handler) GetVocab(c *gin.Context) {
+	ok, userJWTProfile := common.ProfileFromJwt(c)
+	if !ok {
+		common.AbortWithError(c, common.ErrUserNotFound)
+		return
+	}
+	data, err := h.service.GetVocabById(c, userJWTProfile.Id)
+	if err != nil {
+		common.AbortWithError(c, err)
+		return
+	}
+	c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Get vocab bank successfully", data))
+}
 
 func (h *Handler) CreateVocab(c *gin.Context) {
 	ok, userJWTProfile := common.ProfileFromJwt(c)
@@ -37,5 +37,5 @@ func (h *Handler) CreateVocab(c *gin.Context) {
 		common.AbortWithError(c, err)
 		return
 	}
-	c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Create target successfully", data))
+	c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Create vocab successfully", data))
 }
