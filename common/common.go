@@ -17,6 +17,7 @@ const (
 	POSTGRES_TABLE_NAME_ANSWER           = "public.answers"
 	POSTGRES_TABLE_NAME_SUCCESS_QUIZ_LOG = "public.success_quiz_log"
 	POSTGRES_TABLE_NAME_VOCAB            = "public.vocab_bank"
+	POSTGRES_TABLE_NAME_PLAN             = "public.user_plan"
 )
 
 // Define New Const variable here for each service

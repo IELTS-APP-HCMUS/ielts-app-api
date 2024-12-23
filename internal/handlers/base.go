@@ -68,4 +68,11 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		vocab.GET("", middleware.UserAuthentication, h.GetVocab)
 		vocab.POST("", middleware.UserAuthentication, h.CreateVocab)
 	}
+
+	plan := c.Group("/v1/plans")
+	{
+		plan.GET("", middleware.UserAuthentication, h.GetPlan)
+		plan.POST("", middleware.UserAuthentication, h.CreatePlan)
+	}
+
 }
