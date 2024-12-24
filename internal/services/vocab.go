@@ -7,14 +7,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func (s *Service) GetVocabById(ctx context.Context, userId string) (vocab *models.Vocab, err error) {
-	vocab_bank, err := s.vocabRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
-		tx.Where("user_id = ?", userId)
+func (s *Service) GetVocabById(ctx context.Context, userId string) ([]*models.Vocab, error) {
+	vocabs, err := s.vocabRepo.List(ctx, models.QueryParams{}, func(tx *gorm.DB) {
+		tx.Where("user_id", userId)
 	})
 	if err != nil {
 		return nil, err
 	}
-	return vocab_bank, nil
+	return vocabs, nil
 }
 
 func (s *Service) CreateVocab(ctx context.Context, userId string, body models.VocabRequest) (*models.Vocab, error) {
