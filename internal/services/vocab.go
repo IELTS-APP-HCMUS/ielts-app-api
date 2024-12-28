@@ -19,13 +19,13 @@ func (s *Service) GetVocabById(ctx context.Context, userId string) ([]*models.Vo
 
 func (s *Service) CreateVocab(ctx context.Context, userId string, body models.VocabRequest) (*models.Vocab, error) {
 	vocab := &models.Vocab{
-		Value:           body.Value,
-		WordClass:       body.WordClass,
+		Value:           body.Word,
+		WordClass:       body.WordType,
 		Meaning:         body.Meaning,
 		IPA:             body.IPA,
 		Example:         body.Example,
-		Explanation:     body.Explanation,
-		IsLearnedStatus: body.IsLearnedStatus,
+		Explanation:     body.Note,
+		IsLearnedStatus: body.Status == "Đã học",
 		UserId:          userId,
 	}
 
@@ -35,6 +35,40 @@ func (s *Service) CreateVocab(ctx context.Context, userId string, body models.Vo
 	}
 
 	return vocab, nil
+}
+
+func (s *Service) UpdateVocab(ctx context.Context, userId string, vocabValue models.VocabQuery, body models.VocabRequest) (*models.Vocab, error) {
+	vocab, err := s.vocabRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("user_id = ?", userId).Where("value = ?", vocabValue.Value)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Just update the 'IsLearnedStatus' field
+	var updateColumns map[string]interface{}
+
+	if body.Status != "" {
+		updateColumns = map[string]interface{}{
+			"IsLearnedStatus": body.Status == "Đã học",
+		}
+	}
+	vocab, err = s.vocabRepo.UpdateColumns(ctx, vocab.ID, updateColumns)
+	if err != nil {
+		return nil, err
+	}
+	return vocab, nil
+}
+
+func (s *Service) DeleteVocab(ctx context.Context, userId string, vocabValue models.VocabQuery) error {
+	err := s.vocabRepo.Delete(ctx, func(tx *gorm.DB) {
+		tx.Where("user_id = ?", userId).Where("value = ?", vocabValue.Value)
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // func (s *Service) VocabSuggest(ctx context.Context, userID string, query models.VocabSuggestQuery) (vocab *models.Vocab, err error) {

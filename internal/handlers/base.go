@@ -67,6 +67,8 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 	{
 		vocab.GET("", middleware.UserAuthentication, h.GetVocab)
 		vocab.POST("", middleware.UserAuthentication, h.CreateVocab)
+		vocab.PATCH("", middleware.UserAuthentication, h.UpdateVocab)
+		vocab.DELETE("", middleware.UserAuthentication, h.DeleteVocab)
 	}
 
 	plan := c.Group("/v1/plans")

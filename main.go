@@ -48,6 +48,7 @@ func main() {
 	successQuizLogRepo := repositories.NewSuccessQuizLogRepository(db)
 	vocabRepo := repositories.NewVocabRepository(db)
 	planRepo := repositories.NewPlanRepository(db)
+	masterDataRepo := repositories.NewMasterDataRepository(db)
 
 	service := services.NewService(
 		userRepo,
@@ -62,6 +63,7 @@ func main() {
 		successQuizLogRepo,
 		vocabRepo,
 		planRepo,
+		masterDataRepo,
 	)
 
 	// Initialize the Gin router and register routes. Do not edit this part

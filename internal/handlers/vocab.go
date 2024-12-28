@@ -39,3 +39,46 @@ func (h *Handler) CreateVocab(c *gin.Context) {
 	}
 	c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Create vocab successfully", data))
 }
+
+func (h *Handler) UpdateVocab(c *gin.Context) {
+	ok, userJWTProfile := common.ProfileFromJwt(c)
+	if !ok {
+		common.AbortWithError(c, common.ErrUserNotFound)
+		return
+	}
+	var paramsUri models.VocabQuery
+	if err := c.ShouldBindQuery(&paramsUri); err != nil {
+		common.AbortWithError(c, err)
+		return
+	}
+	var req models.VocabRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		common.AbortWithError(c, common.ErrInvalidInput)
+		return
+	}
+	data, err := h.service.UpdateVocab(c, userJWTProfile.Id, paramsUri, req)
+	if err != nil {
+		common.AbortWithError(c, err)
+		return
+	}
+	c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Update vocab successfully", data))
+}
+
+func (h *Handler) DeleteVocab(c *gin.Context) {
+	ok, userJWTProfile := common.ProfileFromJwt(c)
+	if !ok {
+		common.AbortWithError(c, common.ErrUserNotFound)
+		return
+	}
+	var paramsUri models.VocabQuery
+	if err := c.ShouldBindQuery(&paramsUri); err != nil {
+		common.AbortWithError(c, err)
+		return
+	}
+	err := h.service.DeleteVocab(c, userJWTProfile.Id, paramsUri)
+	if err != nil {
+		common.AbortWithError(c, err)
+		return
+	}
+	c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Delete vocab successfully", nil))
+}
