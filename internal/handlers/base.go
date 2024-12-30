@@ -17,9 +17,8 @@ func NewHandler(service *services.Service) *Handler {
 	}
 }
 
-// Define API route here
 func (h *Handler) RegisterRoutes(c *gin.Engine) {
-	// Health check
+
 	health := c.Group("api/health")
 	{
 		health.GET("/status", h.CheckStatusHealth)
@@ -42,18 +41,13 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 
 	quizzes := c.Group("/v1/quizzes")
 	{
-		//API Get Quiz Detail
 		quizzes.GET("/:quiz_id", middleware.UserAuthentication, h.GetQuiz())
-		//API Listing Quiz
 		quizzes.GET("", middleware.OptionalUserAuthentication(), h.GetQuizzes())
-
 		quizzes.POST("/:quiz_id/answer", middleware.UserAuthentication, h.SubmitQuiz())
-
 	}
 
 	tagSearches := c.Group("/v1/tag-searches")
 	{
-		//API Get Tag Search
 		tagSearches.GET("", h.GetTagSearches())
 	}
 
@@ -62,4 +56,25 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		answerRoutes.GET("/:answer_id", middleware.UserAuthentication, h.GetAnswer)
 		answerRoutes.GET("/statistics", middleware.UserAuthentication, h.GetAnswerStatistic)
 	}
+
+	vocab := c.Group("/v1/vocabs")
+	{
+		vocab.GET("", middleware.UserAuthentication, h.GetVocab)
+		vocab.POST("", middleware.UserAuthentication, h.CreateVocab)
+		vocab.PATCH("", middleware.UserAuthentication, h.UpdateVocab)
+		vocab.DELETE("", middleware.UserAuthentication, h.DeleteVocab)
+		vocab.GET("/reading", middleware.UserAuthentication, h.GetReadingVocab())
+	}
+
+	plan := c.Group("/v1/plans")
+	{
+		plan.GET("", middleware.UserAuthentication, h.GetPlan)
+		plan.POST("", middleware.UserAuthentication, h.CreatePlan)
+	}
+
+	masterDataRoutes := c.Group("/api/v1/master-data")
+	{
+		masterDataRoutes.GET("", h.GetMasterData)
+	}
+
 }
