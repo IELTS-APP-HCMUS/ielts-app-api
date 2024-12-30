@@ -1,24 +1,27 @@
 package common
 
 const (
-	POSTGRES_TABLE_NAME_USERS            = "public.users"
-	POSTGRES_TABLE_NAME_ROLES            = "public.roles"
-	POSTGRES_TABLE_NAME_TARGETS          = "public.student_target"
-	POSTGRES_TABLE_NAME_OTPS             = "public.otps"
-	POSTGRES_TABLE_NAME_OTP_ATTEMPTS     = "public.otp_attempts"
-	POSTGRES_TABLE_NAME_QUIZ             = "public.quiz"
-	POSTGRES_TABLE_NAME_PART             = "public.part"
-	POSTGRES_TABLE_NAME_QUESTION         = "public.question"
-	POSTGRES_TABLE_NAME_TAG_SEARCH       = "public.tag_search"
-	POSTGRES_TABLE_NAME_TAG_POSITION     = "public.tag_position"
-	POSTGRES_TABLE_NAME_QUIZ_TAG_SEARCH  = "public.quiz_tag_search"
-	POSTGRES_TABLE_NAME_QUIZ_SKILL       = "public.type"
-	POSTGRES_TABLE_NAME_QUIZ_PART        = "public.quiz_part"
-	POSTGRES_TABLE_NAME_ANSWER           = "public.answers"
-	POSTGRES_TABLE_NAME_SUCCESS_QUIZ_LOG = "public.success_quiz_log"
+	POSTGRES_TABLE_NAME_USERS                  = "public.users"
+	POSTGRES_TABLE_NAME_ROLES                  = "public.roles"
+	POSTGRES_TABLE_NAME_TARGETS                = "public.student_target"
+	POSTGRES_TABLE_NAME_OTPS                   = "public.otps"
+	POSTGRES_TABLE_NAME_OTP_ATTEMPTS           = "public.otp_attempts"
+	POSTGRES_TABLE_NAME_QUIZ                   = "public.quiz"
+	POSTGRES_TABLE_NAME_PART                   = "public.part"
+	POSTGRES_TABLE_NAME_QUESTION               = "public.question"
+	POSTGRES_TABLE_NAME_TAG_SEARCH             = "public.tag_search"
+	POSTGRES_TABLE_NAME_TAG_POSITION           = "public.tag_position"
+	POSTGRES_TABLE_NAME_QUIZ_TAG_SEARCH        = "public.quiz_tag_search"
+	POSTGRES_TABLE_NAME_QUIZ_SKILL             = "public.type"
+	POSTGRES_TABLE_NAME_QUIZ_PART              = "public.quiz_part"
+	POSTGRES_TABLE_NAME_ANSWER                 = "public.answers"
+	POSTGRES_TABLE_NAME_SUCCESS_QUIZ_LOG       = "public.success_quiz_log"
+	POSTGRES_TABLE_NAME_USER_VOCAB_BANK        = "public.vocab_bank"
+	POSTGRES_TABLE_NAME_PLAN                   = "public.user_plan"
+	POSTGRES_TABLE_NAME_MASTER_DATA_CATEGORIES = "public.master_data_categories"
+	POSTGRES_TABLE_NAME_MASTER_DATA            = "public.master_data"
+	POSTGRES_TABLE_NAME_VOCAB_AI               = "public.temp_vocab"
 )
-
-// Define New Const variable here for each service
 
 const (
 	ROLE_END_USER        = "end_user"
