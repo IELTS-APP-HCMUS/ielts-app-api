@@ -82,3 +82,22 @@ func (h *Handler) DeleteVocab(c *gin.Context) {
 	}
 	c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Delete vocab successfully", nil))
 }
+
+func (h *Handler) GetReadingVocab() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var request models.LookUpVocabRequest
+		if err := c.ShouldBindQuery(&request); err != nil {
+			common.AbortWithError(c, common.ErrInvalidInput)
+			return
+		}
+
+		data, err := h.service.GetReadingVocab(c.Request.Context(), request)
+		if err != nil {
+			common.AbortWithError(c, err)
+			return
+		}
+
+		c.JSON(common.SUCCESS_STATUS,
+			common.BaseResponseMess(common.SUCCESS_STATUS, "Get reading vocab bank successfully", data))
+	}
+}

@@ -7,11 +7,5 @@ import (
 )
 
 func (h *Handler) GetMasterData(c *gin.Context) {
-	// data, err := h.service.GetMasterData(c)
-	// data, err = nil, nil
-	// if err != nil {
-	// 	common.AbortWithError(c, err)
-	// 	return
-	// }
 	c.JSON(common.SUCCESS_STATUS, common.ResponseOk(123))
 }

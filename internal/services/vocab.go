@@ -2,13 +2,16 @@ package services
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"ielts-app-api/internal/models"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
-func (s *Service) GetVocabById(ctx context.Context, userId string) ([]*models.Vocab, error) {
-	vocabs, err := s.vocabRepo.List(ctx, models.QueryParams{}, func(tx *gorm.DB) {
+func (s *Service) GetVocabById(ctx context.Context, userId string) ([]*models.UserVocabBank, error) {
+	vocabs, err := s.vocabBankRepo.List(ctx, models.QueryParams{}, func(tx *gorm.DB) {
 		tx.Where("user_id", userId)
 	})
 	if err != nil {
@@ -17,8 +20,8 @@ func (s *Service) GetVocabById(ctx context.Context, userId string) ([]*models.Vo
 	return vocabs, nil
 }
 
-func (s *Service) CreateVocab(ctx context.Context, userId string, body models.VocabRequest) (*models.Vocab, error) {
-	vocab := &models.Vocab{
+func (s *Service) CreateVocab(ctx context.Context, userId string, body models.VocabRequest) (*models.UserVocabBank, error) {
+	vocab := &models.UserVocabBank{
 		Value:           body.Word,
 		WordClass:       body.WordType,
 		Meaning:         body.Meaning,
@@ -29,7 +32,7 @@ func (s *Service) CreateVocab(ctx context.Context, userId string, body models.Vo
 		UserId:          userId,
 	}
 
-	vocab, err := s.vocabRepo.Create(ctx, vocab)
+	vocab, err := s.vocabBankRepo.Create(ctx, vocab)
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +40,8 @@ func (s *Service) CreateVocab(ctx context.Context, userId string, body models.Vo
 	return vocab, nil
 }
 
-func (s *Service) UpdateVocab(ctx context.Context, userId string, vocabValue models.VocabQuery, body models.VocabRequest) (*models.Vocab, error) {
-	vocab, err := s.vocabRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+func (s *Service) UpdateVocab(ctx context.Context, userId string, vocabValue models.VocabQuery, body models.VocabRequest) (*models.UserVocabBank, error) {
+	vocab, err := s.vocabBankRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("user_id = ?", userId).Where("value = ?", vocabValue.Value)
 	})
 	if err != nil {
@@ -53,7 +56,7 @@ func (s *Service) UpdateVocab(ctx context.Context, userId string, vocabValue mod
 			"IsLearnedStatus": body.Status == "Đã học",
 		}
 	}
-	vocab, err = s.vocabRepo.UpdateColumns(ctx, vocab.ID, updateColumns)
+	vocab, err = s.vocabBankRepo.UpdateColumns(ctx, vocab.ID, updateColumns)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +64,7 @@ func (s *Service) UpdateVocab(ctx context.Context, userId string, vocabValue mod
 }
 
 func (s *Service) DeleteVocab(ctx context.Context, userId string, vocabValue models.VocabQuery) error {
-	err := s.vocabRepo.Delete(ctx, func(tx *gorm.DB) {
+	err := s.vocabBankRepo.Delete(ctx, func(tx *gorm.DB) {
 		tx.Where("user_id = ?", userId).Where("value = ?", vocabValue.Value)
 	})
 	if err != nil {
@@ -71,119 +74,42 @@ func (s *Service) DeleteVocab(ctx context.Context, userId string, vocabValue mod
 	return nil
 }
 
-// func (s *Service) VocabSuggest(ctx context.Context, userID string, query models.VocabSuggestQuery) (vocab *models.Vocab, err error) {
-// 	filters := []repositories.Clause{}
-// 	filters = append(filters, func(tx *gorm.DB) {
-// 		tx.Where("user_id = ? AND category = ? AND period_type = ?", userID, common.AIUsageCategoryVocabTranslate, common.PeriodTypeWeek)
-// 	})
+func (s *Service) GetReadingVocab(ctx context.Context, request models.LookUpVocabRequest) (*models.Vocab, error) {
+	vocabId := fmt.Sprintf("%d_%d_%d", request.QuizId, request.SentenceIndex, request.WordIndex)
 
-// 	usage, err := s.aiWritingRepo.GetDetailByConditions(ctx, filters...)
-// 	if err != nil {
-// 		return nil, common.ErrorWrapper("AIUsageCountRepo.GetDetailByConditions", err)
-// 	}
-// 	if usage != nil && *usage.Used >= *usage.Total {
-// 		return nil, errors.New("quota exceeded: you have used all your AI vocab quota")
-// 	}
+	vocab, err := s.vocabRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("vocab_id = ?", vocabId)
+	})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			vocab, err = s.LookUpVocabLinear(ctx, request.QuizId, request.SentenceIndex, request.Word)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+	} else {
+		if vocab.Value != request.Word {
+			vocab, err = s.LookUpVocabLinear(ctx, request.QuizId, request.SentenceIndex, request.Word)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	vocab.Explanation = strings.ReplaceAll(vocab.Explanation, "\"", "")
+	return vocab, nil
+}
 
-// 	question, err := s.questionRepo.GetByID(ctx, query.QuestionID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func (s *Service) LookUpVocabLinear(ctx context.Context, quizId int, sentenceIndex int, word string) (*models.Vocab, error) {
+	vocabIdPattern := fmt.Sprintf("%d_%d_%%", quizId, sentenceIndex)
 
-// 	clauses := []repositories.Clause{}
-// 	clauses = append(clauses, func(tx *gorm.DB) {
-// 		tx.Where("value = ?", query.Input)
-// 		tx.Where("question_id = ?", query.QuestionID)
+	vocab, err := s.vocabRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("vocab_id LIKE ? AND value = ?", vocabIdPattern, word)
+	})
+	if err != nil {
+		return nil, err
+	}
 
-// 	})
-// 	vocabCheck, err := s.vocabRepo.List(ctx, models.QueryParams{}, clauses...)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	if len(vocabCheck) == 0 {
-// 		vocabCheck = nil
-// 	}
-
-// 	if vocabCheck != nil {
-// 		return processVocabTransaction(ctx, s, userID, vocabCheck[0].ID, usage, vocabCheck[0])
-// 	}
-
-// 	vocabPrompt := &models.VocabPrompt{
-// 		Input:    query.Input,
-// 		Question: question.Title,
-// 		Type:     common.SuggestPhrase,
-// 	}
-
-// 	promptResponse, err := s.getPromptVocabData(ctx, vocabPrompt)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	synonyms := []string{}
-// 	if promptResponse.Synonyms.Synonym1 != "" {
-// 		synonyms = append(synonyms, promptResponse.Synonyms.Synonym1)
-// 	}
-// 	if promptResponse.Synonyms.Synonym2 != "" {
-// 		synonyms = append(synonyms, promptResponse.Synonyms.Synonym2)
-// 	}
-
-// 	examples := []models.Example{}
-
-// 	for _, example := range promptResponse.Examples {
-// 		examples = append(examples, models.Example{
-// 			ExampleText:     example.ExampleText,
-// 			TranslationText: example.TranslationText,
-// 		})
-// 	}
-// 	jsonExamples, err := json.Marshal(examples)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	vocab = &models.Vocab{
-// 		Value:       query.Input,
-// 		Synonyms:    synonyms,
-// 		Examples:    jsonExamples,
-// 		Translation: promptResponse.Translation,
-// 		QuestionID:  query.QuestionID,
-// 		Source:      common.SourceAIFromVieToEng,
-// 		QuizID:      query.QuizID,
-// 	}
-
-// 	newVocab, err := s.vocabRepo.Create(ctx, vocab)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return processVocabTransaction(ctx, s, userID, newVocab.ID, usage, vocab)
-// }
-
-// func processVocabTransaction(ctx context.Context, s *Service, userID string, vocabValue int, usage *models.AIUsageCount, vocabCheck *models.Vocab) (*models.Vocab, error) {
-// 	updateColumns := map[string]interface{}{
-// 		"used": *usage.Used + 1,
-// 	}
-// 	_, err := s.aiWritingRepo.UpdateColumns(ctx, usage.ID, updateColumns)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	vocabSuggest := map[string]string{
-// 		"vocab_id": strconv.Itoa(vocabValue),
-// 	}
-// 	valueMeta, err := json.Marshal(vocabSuggest)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	newTransaction := &models.AIUsageCountTransaction{
-// 		UserID:   userID,
-// 		Category: common.AIUsageCategoryVocabTranslate,
-// 		Meta:     valueMeta,
-// 	}
-// 	_, err = s.aiWritingRepo.Transaction.Create(ctx, newTransaction)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return vocabCheck, nil
-// }
+	return vocab, nil
+}

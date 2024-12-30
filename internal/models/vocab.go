@@ -3,6 +3,8 @@ package models
 import (
 	"ielts-app-api/common"
 	"time"
+
+	"gorm.io/datatypes"
 )
 
 type VocabRequest struct {
@@ -15,7 +17,7 @@ type VocabRequest struct {
 	Status   string `json:"status,omitempty"`
 }
 
-type Vocab struct {
+type UserVocabBank struct {
 	ID              int       `json:"id" gorm:"id,primaryKey;autoIncrement"`
 	Value           string    `json:"value,omitempty"`
 	WordClass       string    `json:"word_class,omitempty"`
@@ -33,7 +35,31 @@ type VocabQuery struct {
 	Value string `form:"value"`
 }
 
+func (UserVocabBank) TableName() string {
+	return common.POSTGRES_TABLE_NAME_USER_VOCAB_BANK
+}
+
+type LookUpVocabRequest struct {
+	QuizId        int    `form:"quiz_id" binding:"required"`
+	SentenceIndex int    `form:"sentence_index" binding:"required"`
+	WordIndex     int    `form:"vocab_index" binding:"required"`
+	Word          string `form:"word"`
+}
+
+type Vocab struct {
+	ID          int            `json:"id" gorm:"column:id;primaryKey;autoIncrement"`
+	VocabID     string         `json:"-" gorm:"column:vocab_id;not null"`
+	Value       string         `json:"-" gorm:"column:value;not null"`
+	WordDisplay string         `json:"word_display" gorm:"column:word_display;not null"`
+	WordClass   string         `json:"word_class" gorm:"column:word_class;not null"`
+	Meaning     string         `json:"meaning" gorm:"column:meaning;not null"`
+	IPA         string         `json:"ipa" gorm:"column:ipa;not null"`
+	Explanation string         `json:"explanation" gorm:"column:explanation;not null"`
+	Collocation string         `json:"collocation" gorm:"column:collocation;not null"`
+	Example     datatypes.JSON `json:"example" gorm:"column:example;not null"`
+}
+
+// TableName overrides the default table name for GORM
 func (Vocab) TableName() string {
-	// define common variable here
-	return common.POSTGRES_TABLE_NAME_VOCAB
+	return common.POSTGRES_TABLE_NAME_VOCAB_AI
 }
