@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"ielts-app-api/common"
-	"regexp"
 )
 
 type QuizPartM struct {
@@ -56,9 +55,7 @@ func (r Question) CountTotalSubQuestion() int {
 	case common.QUESTION_TYPE_SINGLE_SELECTION:
 		return 1
 	case common.QUESTION_TYPE_FILL_IN_THE_BLANK:
-		re := regexp.MustCompile(`{\[([^[\]]+)\]\[(\d+(?:-\d+)?)\]}`)
-		matches := re.FindAllStringSubmatch(*r.GapFillInBlank, -1)
-		return len(matches)
+		return 1
 	case common.QUESTION_TYPE_MULTIPLE:
 		var choices []QuestionMultipleChoice
 		if r.MultipleChoice == nil {

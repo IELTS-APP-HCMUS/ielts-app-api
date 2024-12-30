@@ -63,6 +63,7 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		answerRoutes.GET("/statistics", middleware.UserAuthentication, h.GetAnswerStatistic)
 	}
 
+
 	vocab := c.Group("/v1/vocabs")
 	{
 		vocab.GET("", middleware.UserAuthentication, h.GetVocab)
@@ -75,6 +76,11 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 	{
 		plan.GET("", middleware.UserAuthentication, h.GetPlan)
 		plan.POST("", middleware.UserAuthentication, h.CreatePlan)
+	}
+  
+	masterDataRoutes := c.Group("/api/v1/master-data")
+	{
+		masterDataRoutes.GET("/", h.GetMasterData)
 	}
 
 }
