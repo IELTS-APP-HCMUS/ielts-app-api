@@ -62,4 +62,11 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		answerRoutes.GET("/:answer_id", middleware.UserAuthentication, h.GetAnswer)
 		answerRoutes.GET("/statistics", middleware.UserAuthentication, h.GetAnswerStatistic)
 	}
+
+	masterDataRoutes := c.Group("/api/v1/master-data")
+	{
+		masterDataRoutes.GET("/", h.GetMasterData)
+	}
+
+	// Note: định sửa lại api url tương tự nhau (ví dụ: /api/v1/...)
 }

@@ -60,7 +60,11 @@ func (s *Service) GetAnswerStatistic(ctx context.Context, studentID string, requ
 		err                         error
 	)
 
-	if request.StartedAt.IsZero() && request.EndedAt.IsZero() {
+	if request.Today {
+		// if today, set started_at and ended_at to 0h and 23h59m59s
+		request.StartedAt = time.Now().Truncate(24 * time.Hour)
+		request.EndedAt = request.StartedAt.Add(24*time.Hour - time.Second)
+	} else if request.StartedAt.IsZero() && request.EndedAt.IsZero() {
 		request.EndedAt = time.Now()
 		request.StartedAt = request.EndedAt.AddDate(0, 0, -365)
 	} else if !request.StartedAt.IsZero() {
