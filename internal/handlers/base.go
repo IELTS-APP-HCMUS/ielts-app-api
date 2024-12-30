@@ -63,10 +63,24 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		answerRoutes.GET("/statistics", middleware.UserAuthentication, h.GetAnswerStatistic)
 	}
 
+
+	vocab := c.Group("/v1/vocabs")
+	{
+		vocab.GET("", middleware.UserAuthentication, h.GetVocab)
+		vocab.POST("", middleware.UserAuthentication, h.CreateVocab)
+		vocab.PATCH("", middleware.UserAuthentication, h.UpdateVocab)
+		vocab.DELETE("", middleware.UserAuthentication, h.DeleteVocab)
+	}
+
+	plan := c.Group("/v1/plans")
+	{
+		plan.GET("", middleware.UserAuthentication, h.GetPlan)
+		plan.POST("", middleware.UserAuthentication, h.CreatePlan)
+	}
+  
 	masterDataRoutes := c.Group("/api/v1/master-data")
 	{
 		masterDataRoutes.GET("/", h.GetMasterData)
 	}
 
-	// Note: định sửa lại api url tương tự nhau (ví dụ: /api/v1/...)
 }
