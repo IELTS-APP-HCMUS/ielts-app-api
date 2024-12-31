@@ -21,7 +21,11 @@ func (s *Service) GetVocabById(ctx context.Context, userId string) ([]*models.Us
 }
 
 func (s *Service) CreateVocab(ctx context.Context, userId string, body models.VocabRequest) (*models.UserVocabBank, error) {
+	vocabs, err := s.vocabBankRepo.List(ctx, models.QueryParams{}, func(tx *gorm.DB) {
+		tx.Where("user_id", userId).Where("value", body.Word)
+	})
 	vocab := &models.UserVocabBank{
+		Key:             fmt.Sprintf("%s_%d", body.Word, len(vocabs)+1),
 		Value:           body.Word,
 		WordClass:       body.WordType,
 		Meaning:         body.Meaning,
@@ -32,7 +36,7 @@ func (s *Service) CreateVocab(ctx context.Context, userId string, body models.Vo
 		UserId:          userId,
 	}
 
-	vocab, err := s.vocabBankRepo.Create(ctx, vocab)
+	vocab, err = s.vocabBankRepo.Create(ctx, vocab)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +46,7 @@ func (s *Service) CreateVocab(ctx context.Context, userId string, body models.Vo
 
 func (s *Service) UpdateVocab(ctx context.Context, userId string, vocabValue models.VocabQuery, body models.VocabRequest) (*models.UserVocabBank, error) {
 	vocab, err := s.vocabBankRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
-		tx.Where("user_id = ?", userId).Where("value = ?", vocabValue.Value)
+		tx.Where("user_id = ?", userId).Where("key = ?", vocabValue.Key)
 	})
 	if err != nil {
 		return nil, err
@@ -65,7 +69,7 @@ func (s *Service) UpdateVocab(ctx context.Context, userId string, vocabValue mod
 
 func (s *Service) DeleteVocab(ctx context.Context, userId string, vocabValue models.VocabQuery) error {
 	err := s.vocabBankRepo.Delete(ctx, func(tx *gorm.DB) {
-		tx.Where("user_id = ?", userId).Where("value = ?", vocabValue.Value)
+		tx.Where("user_id = ?", userId).Where("key = ?", vocabValue.Key)
 	})
 	if err != nil {
 		return err
