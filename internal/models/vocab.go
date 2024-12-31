@@ -19,6 +19,7 @@ type VocabRequest struct {
 
 type UserVocabBank struct {
 	ID              int       `json:"id" gorm:"id,primaryKey;autoIncrement"`
+	Key             string    `json:"key,omitempty"`
 	Value           string    `json:"value,omitempty"`
 	WordClass       string    `json:"word_class,omitempty"`
 	Meaning         string    `json:"meaning,omitempty"`
@@ -32,7 +33,7 @@ type UserVocabBank struct {
 }
 
 type VocabQuery struct {
-	Value string `form:"value"`
+	Key string `form:"key"`
 }
 
 func (UserVocabBank) TableName() string {
