@@ -8,6 +8,7 @@ import (
 )
 
 type VocabRequest struct {
+	Key      string `json:"key,omitempty"`
 	Word     string `json:"word"`
 	WordType string `json:"type,omitempty"`
 	Meaning  string `json:"meaning,omitempty"`

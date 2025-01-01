@@ -13,14 +13,26 @@ func (h *Handler) GetVocab(c *gin.Context) {
 		common.AbortWithError(c, common.ErrUserNotFound)
 		return
 	}
-	data, err := h.service.GetVocabById(c, userJWTProfile.Id)
+	var paramsUri models.VocabQuery
+	if err := c.ShouldBindQuery(&paramsUri); err != nil {
+		common.AbortWithError(c, err)
+		return
+	}
+	if paramsUri.Key != "" {
+		data, err := h.service.GetVocabByKey(c, userJWTProfile.Id, paramsUri)
+		if err != nil {
+			common.AbortWithError(c, err)
+			return
+		}
+		c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Get vocab bank successfully", data))
+	}
+	data, err := h.service.GetAllVocab(c, userJWTProfile.Id)
 	if err != nil {
 		common.AbortWithError(c, err)
 		return
 	}
 	c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Get vocab bank successfully", data))
 }
-
 func (h *Handler) CreateVocab(c *gin.Context) {
 	ok, userJWTProfile := common.ProfileFromJwt(c)
 	if !ok {

@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (s *Service) GetVocabById(ctx context.Context, userId string) ([]*models.UserVocabBank, error) {
+func (s *Service) GetAllVocab(ctx context.Context, userId string) ([]*models.UserVocabBank, error) {
 	vocabs, err := s.vocabBankRepo.List(ctx, models.QueryParams{}, func(tx *gorm.DB) {
 		tx.Where("user_id", userId)
 	})
@@ -19,13 +19,29 @@ func (s *Service) GetVocabById(ctx context.Context, userId string) ([]*models.Us
 	}
 	return vocabs, nil
 }
+func (s *Service) GetVocabByKey(ctx context.Context, userId string, vocabValue models.VocabQuery) (*models.UserVocabBank, error) {
+	vocab, err := s.vocabBankRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("user_id = ?", userId).Where("key = ?", vocabValue.Key)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vocab, nil
+}
 
 func (s *Service) CreateVocab(ctx context.Context, userId string, body models.VocabRequest) (*models.UserVocabBank, error) {
 	vocabs, err := s.vocabBankRepo.List(ctx, models.QueryParams{}, func(tx *gorm.DB) {
 		tx.Where("user_id", userId).Where("value", body.Word)
 	})
+	if err != nil {
+		return nil, err
+	}
+	key := body.Key
+	if key == "" {
+		key = fmt.Sprintf("%s_%d", body.Word, len(vocabs)+1)
+	}
 	vocab := &models.UserVocabBank{
-		Key:             fmt.Sprintf("%s_%d", body.Word, len(vocabs)+1),
+		Key:             key,
 		Value:           body.Word,
 		WordClass:       body.WordType,
 		Meaning:         body.Meaning,
