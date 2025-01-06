@@ -154,6 +154,10 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 		tx.Preload("TagSearches.TagPositions") // Preload TagPositions đúng cách
 	})
 
+	filters = append(filters, func(tx *gorm.DB) {
+		tx.Where("status = ?", common.QUIZ_STATUS_PUBLISHED)
+	})
+
 	records, err := s.quizRepo.List(
 		ctx,
 		models.QueryParams{
