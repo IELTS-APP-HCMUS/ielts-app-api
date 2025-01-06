@@ -151,7 +151,7 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 
 	// Preload tagSearches
 	filters = append(filters, func(tx *gorm.DB) {
-		tx.Preload("TagSearches")
+		tx.Preload("TagSearches.TagPositions") // Preload TagPositions đúng cách
 	})
 
 	records, err := s.quizRepo.List(
@@ -161,6 +161,12 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 			Offset: (page - 1) * pageSize,
 			QuerySort: models.QuerySort{
 				Origin: request.Sort,
+			},
+			Selected: []string{
+				"id", "type", "mode", "title", "status", "sort", "time",
+				"is_test", "simplified_id", "limit_submit", "thumbnail",
+				"quiz_code", "description", "user_created", "user_updated",
+				"date_created", "date_updated", "quiz_type", "total_submitted",
 			},
 		},
 		filters...,
@@ -210,189 +216,6 @@ func (s *Service) GetQuiz(ctx context.Context, req *models.QuizParamsUri, userID
 	return quiz, nil
 }
 
-// func (s *Service) SubmitQuizAnswer(ctx context.Context, userId string, quizId int, results models.QuizAnswer) (answer *models.Answer, err error) {
-// 	// get quiz & check type
-// 	q, err := s.quizRepo.GetByID(ctx, quizId)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	t, err := s.quizSkillRepo.GetByID(ctx, q.Type)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	results.Answer.QuizType = q.QuizType
-
-// 	if t.PublicId == common.QuizSkillReading {
-// 		answer, _, err = s.submitReadingListening(ctx, userId, quizId, results)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 	}
-
-// 	return answer, nil
-// }
-
-// func (s *Service) submitReadingListening(ctx context.Context, userId string, quizId int, results models.QuizAnswer) (*models.Answer, map[int]models.QuestionSuccessCount, error) {
-// 	results.Answer.UserCreated = userId
-// 	results.Answer.DateCreated = time.Now()
-// 	answer, err := s.answerRepo.Create(ctx, results.Answer)
-// 	if err != nil {
-// 		return nil, nil, err
-// 	}
-
-// 	quiz, err := s.quizRepo.GetQuizSubmitted(ctx, quizId)
-
-// 	if err != nil {
-// 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-// 			return nil, nil, err
-// 		} else {
-// 			return nil, nil, common.ErrQuizNotFound
-// 		}
-// 	}
-
-// 	quizCfg, err := s.quizRepo.List(ctx, models.QueryParams{}, func(tx *gorm.DB) {
-// 		tx.Select("id", "type").Where("id", quizId).Where("status", common.QUIZ_STATUS_PUBLISHED)
-// 	})
-// 	if err != nil || len(quizCfg) == 0 {
-// 		return nil, nil, err
-// 	}
-
-// 	var questionTypeSuccessCount = make(map[string]models.QuestionSuccessCount)
-// 	var passageSuccessCount = make(map[int]models.QuestionSuccessCount)
-
-// 	questionTypeSuccessCount, passageSuccessCount, err = s.countAnswerStatistic(ctx, quiz, results.QuestionResult)
-// 	if err != nil {
-// 		return nil, nil, err
-// 	}
-
-// 	var createsQuizLog []*models.SuccessQuizLog
-// 	var mu sync.Mutex
-// 	for i, v := range questionTypeSuccessCount {
-// 		mu.Lock()
-// 		createsQuizLog = append(createsQuizLog, &models.SuccessQuizLog{
-// 			Total:        v.Total,
-// 			Success:      v.Success,
-// 			Date:         time.Now(),
-// 			Status:       1,
-// 			Skill:        quizCfg[0].Type,
-// 			QuestionType: i,
-// 			UserId:       userId,
-// 			Skipped:      v.Skip,
-// 			Failed:       v.Failed,
-// 			AnswerId:     answer.ID,
-// 			QuizType:     results.Answer.QuizType,
-// 		})
-// 		mu.Unlock()
-// 	}
-
-// 	for i, v := range passageSuccessCount {
-// 		mu.Lock()
-// 		createsQuizLog = append(createsQuizLog, &models.SuccessQuizLog{
-// 			Total:    v.Total,
-// 			Success:  v.Success,
-// 			Date:     time.Now(),
-// 			Status:   1,
-// 			Skill:    quizCfg[0].Type,
-// 			Passage:  i,
-// 			UserId:   userId,
-// 			Skipped:  v.Skip,
-// 			Failed:   v.Failed,
-// 			AnswerId: answer.ID,
-// 			QuizType: results.Answer.QuizType,
-// 		})
-// 		mu.Unlock()
-// 	}
-
-// 	if len(createsQuizLog) == 0 {
-// 		return answer, nil, err
-// 	}
-
-// 	err = s.successQuizLogRepo.CreatesMultiple(ctx, createsQuizLog)
-// 	if err != nil {
-// 		return answer, nil, err
-// 	}
-// 	return answer, passageSuccessCount, nil
-// }
-
-// func (s *Service) countAnswerStatistic(ctx context.Context, quiz *models.Quiz, correction []models.QuestionResult) (questionTypeSuccessCount map[string]models.QuestionSuccessCount, passageSuccessCount map[int]models.QuestionSuccessCount, err error) {
-// 	for i, v := range correction {
-// 		fmt.Println(i, v)
-// 	}
-// 	log.Printf("Quiz ID: %d, Corrections Count: %d\n", quiz.ID, len(correction))
-// 	// it stops here sometimes
-// 	// sometimes it will run down to the quizCfg
-// 	quizCfg, err := s.quizRepo.List(ctx, models.QueryParams{}, func(tx *gorm.DB) {
-// 		tx.Select("id", "type").Where("id", quiz.ID).Where("status", common.QUIZ_STATUS_PUBLISHED)
-// 	})
-// 	if err != nil || len(quizCfg) == 0 {
-// 		err = errors.New("fetch quiz error")
-// 		return
-// 	}
-
-// 	resultObject := make(map[int]models.QuizResult)
-// 	for _, r := range correction {
-// 		resultObject[r.Id] = r.QuizResult
-// 	}
-// 	questionTypeSuccessCount = make(map[string]models.QuestionSuccessCount)
-// 	passageSuccessCount = make(map[int]models.QuestionSuccessCount)
-
-// 	for _, part := range quiz.Parts {
-// 		for _, question := range part.Questions {
-// 			subQuestionCount := question.CountTotalSubQuestion()
-// 			if part.Passage != 0 {
-// 				val, ok := passageSuccessCount[part.Passage]
-// 				if !ok {
-// 					val = models.QuestionSuccessCount{
-// 						Total:   0,
-// 						Success: 0,
-// 					}
-// 				}
-
-// 				result, ok := resultObject[question.ID]
-// 				if ok {
-// 					val.Total += subQuestionCount
-// 					val.Success += result.SuccessCount
-// 					val.Failed += result.Total - result.SuccessCount
-// 					val.Skip += subQuestionCount - result.Total
-// 				} else {
-// 					val.Skip += subQuestionCount
-// 					val.Total += subQuestionCount
-// 				}
-// 				passageSuccessCount[part.Passage] = val
-// 			}
-
-// 			var logQuestionType string
-// 			if question.QuestionType != "" {
-// 				logQuestionType = question.QuestionType
-// 			} else {
-// 				logQuestionType = common.QUESTION_TYPE_CATEGORY_OTHERS
-// 			}
-// 			val, ok := questionTypeSuccessCount[logQuestionType]
-// 			if !ok {
-// 				val = models.QuestionSuccessCount{
-// 					Total:   0,
-// 					Success: 0,
-// 				}
-// 			}
-
-// 			result, ok := resultObject[question.ID]
-// 			if ok {
-// 				val.Total += subQuestionCount
-// 				val.Success += result.SuccessCount
-// 				val.Failed += result.Total - result.SuccessCount
-// 				val.Skip += subQuestionCount - result.Total
-// 			} else {
-// 				val.Skip += subQuestionCount
-// 				val.Total += subQuestionCount
-// 			}
-// 			questionTypeSuccessCount[logQuestionType] = val
-// 		}
-// 	}
-
-//		return
-//	}
 func (s *Service) SubmitQuizAnswer(ctx context.Context, userId string, quizId int, results models.QuizAnswer) (answer *models.Answer, err error) {
 	// Fetch quiz details with timeout
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
